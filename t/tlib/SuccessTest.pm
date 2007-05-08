@@ -3,7 +3,7 @@ package SuccessTest;
 use strict;
 use warnings;
 
-use base 'Test::Unit::Lite::TestCase';
+use base 'Test::Unit::TestCase';
 
 sub test_success {
   my $self = shift;

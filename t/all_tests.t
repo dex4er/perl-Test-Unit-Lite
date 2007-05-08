@@ -4,7 +4,9 @@ use strict;
 
 use lib 't/tlib', 'tlib';
 
-use Test::Unit::Lite::HarnessUnit;
+use Test::Unit::Lite;
 
-my $testrunner = Test::Unit::Lite::HarnessUnit->new();
+use Test::Unit::HarnessUnit;
+
+my $testrunner = Test::Unit::HarnessUnit->new();
 $testrunner->start("AllTests");

@@ -1,6 +1,6 @@
 package AllTests;
 
-use Test::Unit::Lite::TestSuite;
+use Test::Unit::TestSuite;
 
 use File::Find ();
 use File::Basename ();
@@ -12,7 +12,7 @@ sub new {
 
 sub suite {
     my $class = shift;
-    my $suite = Test::Unit::Lite::TestSuite->empty_new("Framework Tests");
+    my $suite = Test::Unit::TestSuite->empty_new("Framework Tests");
 
     my $dir = (File::Basename::dirname(__FILE__));
     my $depth = scalar File::Spec->splitdir($dir);
@@ -26,9 +26,9 @@ sub suite {
             return unless scalar @path > 0;
             my $class = join '::', @path;
             return unless $class;
-            return if $class =~ /^Test::Unit::Lite::/;
+            return if $class =~ /^Test::Unit::/;
             return if @ARGV and $class !~ $ARGV[0];
-            return unless eval "use $class; $class->isa('Test::Unit::Lite::TestCase');";
+            return unless eval "use $class; $class->isa('Test::Unit::TestCase');";
             $suite->add_test($class);
         },
         no_chdir => 1,
