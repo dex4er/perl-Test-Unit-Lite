@@ -1,14 +1,10 @@
 package AllTests;
 
-use Test::Unit::TestSuite;
+use base 'Test::Unit::TestSuite';
 
 use File::Find ();
 use File::Basename ();
 use File::Spec ();
-
-sub new {
-    return bless {}, shift;
-}
 
 sub suite {
     my $class = shift;
