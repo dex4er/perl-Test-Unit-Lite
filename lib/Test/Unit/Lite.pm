@@ -57,7 +57,7 @@ standard Perl distribution.
 
 =head2 Bundling the L<Test::Unit::Lite> as a part of package distribution
 
-The L<Test::Unit::Lite> framework can be bundled to the package distribution. 
+The L<Test::Unit::Lite> framework can be bundled to the package distribution.
 Then the L<Test::Unit::Lite> module is copied to the F<inc> directory of the
 source directory for the package distribution.
 
@@ -80,7 +80,7 @@ our @EXPORT = qw[bundle];
 sub bundle {
     -f 'Makefile.PL' or -f 'Build.PL'
         or die "Cannot find Makefile.PL or Build.PL in current directory\n";
-     
+
     my $src = __FILE__;
     my $dst = "inc/Test/Unit/Lite.pm";
 
@@ -94,9 +94,9 @@ sub bundle {
     print "Copying $srcfile -> $dstfile\n";
 
     my $dstdir = File::Basename::dirname($dstfile);
-        
+
     -d $dstdir or File::Path::mkpath([$dstdir], 0, 0777 & ~umask);
-        
+
     File::Copy::cp($srcfile, $dstfile) or die "Cannot copy $srcfile to $dstfile: $!\n";
 }
 
@@ -123,17 +123,17 @@ existing.
 This is the simple unit test module.
 
   package SuccessTest;
-  
+
   use strict;
   use warnings;
-  
+
   use base 'Test::Unit::TestCase';
-  
+
   sub test_success {
     my $self = shift;
     $self->assert(1);
   }
-  
+
   1;
 
 =head2 t/tlib/AllTests.pm
@@ -143,23 +143,23 @@ directory.
 
   package AllTests;
 
-  use Test::Unit::TestSuite;
-  
+  use base 'Test::Unit::TestSuite';
+
   use File::Find ();
   use File::Basename ();
   use File::Spec ();
-  
+
   sub new {
       return bless {}, shift;
   }
-  
+
   sub suite {
       my $class = shift;
       my $suite = Test::Unit::TestSuite->empty_new("Tests");
-  
+
       my $dir = (File::Basename::dirname(__FILE__));
       my $depth = scalar File::Spec->splitdir($dir);
-  
+
       File::Find::find({
           wanted => sub {
               my $path = File::Spec->canonpath($File::Find::name);
@@ -177,10 +177,10 @@ directory.
           },
           no_chdir => 1,
       }, $dir || '.');
-  
+
       return $suite;
   }
-  
+
   1;
 
 =head2 t/all_tests.t
@@ -188,15 +188,13 @@ directory.
 This is the test script for L<Test::Harness> called with "make test".
 
   #!/usr/bin/perl -w
-  
+
   use strict;
-  
   use lib 'inc', 't/tlib', 'tlib';  # inc is needed for bundled T::U::L
 
   use Test::Unit::Lite;  # load the Test::Unit replacement
-  
   use Test::Unit::HarnessUnit;
-  
+
   my $testrunner = Test::Unit::HarnessUnit->new();
   $testrunner->start("AllTests");
 
@@ -216,9 +214,12 @@ This is the optional shell script for calling test suite directly.
 
 =head1 SEE ALSO
 
+L<Test::Unit>, L<Test::Unit::TestCase>, L<Test::Unit::TestSuite>,
+L<Test::Unit::Assert>, L<Test::Unit::TestRunner>, L<Test::Unit::HarnessUnit>.
+
 =head1 TESTS
 
-The L<Test::Unit::Lite> was tested as a L<Test::Unit> replacement for following 
+The L<Test::Unit::Lite> was tested as a L<Test::Unit> replacement for following
 distributions: L<Test::C2FIT>, L<XAO::Base>, L<Exception::Base>.
 
 =head1 BUGS
@@ -512,7 +513,7 @@ sub _format_stack {
     }
 
     my @vals = @{$Stack[-1]{vals}}[0,1];
-    
+
     my @vars = ();
     ($vars[0] = $var) =~ s/\$FOO/  \$a/;
     ($vars[1] = $var) =~ s/\$FOO/  \$b/;
@@ -520,7 +521,7 @@ sub _format_stack {
     my $out = "Structures begin differing at:\n";
     foreach my $idx (0..$#vals) {
         my $val = $vals[$idx];
-        $vals[$idx] = !defined $val ? 'undef' 
+        $vals[$idx] = !defined $val ? 'undef'
                                     : "'$val'";
     }
 
@@ -546,7 +547,7 @@ sub empty_new {
         'name' => defined $name ? $name : 'Test suite',
         'units' => [],
     };
-    
+
     return bless $self => $class;
 }
 
@@ -566,7 +567,7 @@ sub new {
         $class = ref $test ? ref $test : $test;
         $self->{name} = $test->{name} if ref $test;
         $self->{units} = $test->{units} if ref $test;
-    } 
+    }
     elsif (defined $test and $test->isa('Test::Unit::TestCase')) {
         $class = ref $test ? ref $test : $test;
         $self->{units} = [ $test->list_tests ];
@@ -639,7 +640,7 @@ sub new {
 sub start {
     my $self = shift;
     my $test = shift;
-    
+
     eval "use $test;";
     die $@ if $@ ne '';
 
@@ -655,7 +656,7 @@ sub start {
     }
 
     print "STARTING TEST RUN\n";
-    printf "1..%d\n", $self->{suite}->count_test_cases; 
+    printf "1..%d\n", $self->{suite}->count_test_cases;
     $self->{suite}->run;
 }
 
