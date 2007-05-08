@@ -1,6 +1,23 @@
 #!/usr/bin/perl -c
 
 package Test::Unit::Lite::TestCase;
+use 5.006;
+our $VERSION = '0.01';
+
+=head1 NAME
+
+Test::Unit::Lite - Unit testing without external dependencies
+
+=head1 SYNOPSIS
+
+.
+
+=head1 DESCRIPTION
+
+.
+
+=cut
+
 
 sub new {
     my $class = shift;
@@ -280,5 +297,6 @@ sub _format_stack {
 
     return $out;
 }
+
 
 1;
