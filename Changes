@@ -1,7 +1,8 @@
 ------------------------------------------------------------------------
 0.02 | Piotr Roszatycki <dexter@debian.org> | ????-??-??
 
-* Development release.
+* Fix incompatibility with 5.006.
+* Try to fix syntax error on 5.009.
 
 ------------------------------------------------------------------------
 0.01 | Piotr Roszatycki <dexter@debian.org> | 2007-05-09
