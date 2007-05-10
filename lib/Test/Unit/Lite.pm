@@ -2,7 +2,7 @@
 
 package Test::Unit::Lite;
 use 5.006;
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 =head1 NAME
 
@@ -66,7 +66,7 @@ source directory for the package distribution.
 
 use strict;
 
-use Exporter 'import';
+use Exporter ();
 use File::Spec ();
 use File::Basename ();
 use File::Copy ();
@@ -74,6 +74,14 @@ use File::Path ();
 
 
 our @EXPORT = qw[bundle];
+
+
+# Call import from Exporter
+sub import {
+    my $pkg = shift;
+    my $callpkg = caller;
+    Exporter::export($pkg, $callpkg, @_);
+}
 
 
 # Copy this module to inc subdirectory of the source distribution
@@ -574,7 +582,7 @@ sub new {
     }
     else {
         require Carp;
-        Carp::confess sprintf "usage: %s->new([CLASSNAME | TEST])\n", __PACKAGE__;
+        Carp::croak(sprintf("usage: %s->new([CLASSNAME | TEST])\n", __PACKAGE__));
     }
 
     return bless $self => $class;

@@ -1,7 +1,7 @@
 --- #YAML:1.0
 name: Test-Unit-Lite
 abstract: Unit testing without external dependencies
-version: 0.01
+version: 0.02
 author:
   - Piotr Roszatycki <dexter@debian.org>
 license: perl
