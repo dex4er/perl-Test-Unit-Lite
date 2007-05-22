@@ -2,7 +2,7 @@
 
 package Test::Unit::Lite;
 use 5.006;
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 =head1 NAME
 
@@ -281,6 +281,7 @@ sub list_tests {
 
 sub __croak {
     my $message = shift;
+    $message = '' unless defined $message;
     my $n = 1;
 
     my($file, $line) = (caller($n++))[1,2];
@@ -302,7 +303,7 @@ sub assert {
         __croak "$arg2 didn't match /$arg1/" unless $arg2 =~ $arg1;
     }
     else {
-        __croak unless $arg1;
+        __croak "Boolean assertion failed" unless $arg1;
     }
 }
 

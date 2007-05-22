@@ -1,4 +1,12 @@
 ------------------------------------------------------------------------
+0.03 | Piotr Roszatycki <dexter@debian.org> | 2007-05-22
+
+Fixes:
+
+* Added "Boolean assertion failed" message on failed assert() check.
+* Removed "undefined value" warning if message is empty.
+
+------------------------------------------------------------------------
 0.02 | Piotr Roszatycki <dexter@debian.org> | 2007-05-11
 
 * Fix incompatibility with 5.006.
