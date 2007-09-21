@@ -1,4 +1,4 @@
-package SuccessTest;
+package Success;
 
 use strict;
 use warnings;

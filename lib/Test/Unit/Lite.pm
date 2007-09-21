@@ -151,7 +151,13 @@ sub __croak {
 
     my $message = "$file:$line - $test($unit)\n$default_message\n$custom_message";
     chomp $message;
-    die $message;
+    die "$message\n";
+}
+
+sub fail {
+    my ($self, $msg) = @_;
+    $msg = '' unless defined $msg;
+    __croak $msg;
 }
 
 sub assert {
@@ -160,7 +166,7 @@ sub assert {
     if (ref $arg1 eq 'Regexp') {
         my $arg2 = shift;
         my $msg = shift;
-        __croak "$arg2 didn't match /$arg1/", $msg unless $arg2 =~ $arg1;
+        __croak "'$arg2' did not match /$arg1/", $msg unless $arg2 =~ $arg1;
     }
     else {
         my $msg = shift;
@@ -180,10 +186,13 @@ sub assert_not_null {
 
 sub assert_equals {
     my ($self, $arg1, $arg2, $msg) = @_;
+    if (not defined $arg1 and not defined $arg2) {
+        return;
+    }
     __croak "expected value was undef; should be using assert_null?", $msg unless defined $arg1;
     __croak "expected '$arg1', got undef", $msg unless defined $arg2;
-    if ($arg1 =~ /^([+-]?(\d+\.\d+|\d+\.|\.\d+|\d+)([eE][+-]?\d+)?)?$/ and
-        $arg2 =~ /^([+-]?(\d+\.\d+|\d+\.|\.\d+|\d+)([eE][+-]?\d+)?)?$/)
+    if ($arg1 =~ /^[+-]?(\d+\.\d+|\d+\.|\.\d+|\d+)([eE][+-]?\d+)?$/ and
+        $arg2 =~ /^[+-]?(\d+\.\d+|\d+\.|\.\d+|\d+)([eE][+-]?\d+)?$/)
     {
         local $^W;
         __croak "expected $arg1, got $arg2", $msg unless $arg1 == $arg2;
@@ -195,16 +204,20 @@ sub assert_equals {
 
 sub assert_not_equals {
     my ($self, $arg1, $arg2, $msg) = @_;
-    __croak "expected value was undef; should be using assert_null?", $msg unless defined $arg1;
-    __croak "expected '$arg1', got undef", $msg unless defined $arg2;
-    if ($arg1 =~ /^([+-]?(\d+\.\d+|\d+\.|\.\d+|\d+)([eE][+-]?\d+)?)?$/ and
-        $arg2 =~ /^([+-]?(\d+\.\d+|\d+\.|\.\d+|\d+)([eE][+-]?\d+)?)?$/)
+    if (not defined $arg1 and not defined $arg2) {
+        __croak "both args were undefined", $msg;
+    }
+    if (not defined $arg1 xor not defined $arg2) {
+        # pass
+    }
+    elsif ($arg1 =~ /^[+-]?(\d+\.\d+|\d+\.|\.\d+|\d+)([eE][+-]?\d+)?$/ and
+           $arg2 =~ /^[+-]?(\d+\.\d+|\d+\.|\.\d+|\d+)([eE][+-]?\d+)?$/)
     {
         local $^W;
-        __croak "$arg1 and $arg2 should be differ", $msg unless $arg1 != $arg2;
+        __croak "$arg1 and $arg2 should differ", $msg unless $arg1 != $arg2;
     }
     else {
-        __croak "'$arg1' and '$arg2' should be differ'", $msg unless $arg1 ne $arg2;
+        __croak "'$arg1' and '$arg2' should differ", $msg unless $arg1 ne $arg2;
     }
 }
 
@@ -381,12 +394,13 @@ sub _format_stack {
     my $out = "Structures begin differing at:\n";
     foreach my $idx (0..$#vals) {
         my $val = $vals[$idx];
-        $vals[$idx] = !defined $val ? 'undef'
+        $vals[$idx] = !defined $val ? 'undef' :
+                      $val eq $DNE  ? 'Does not exist'
                                     : "'$val'";
     }
 
     $out .= "$vars[0] = $vals[0]\n";
-    $out .= "$vars[1] = $vals[1]\n";
+    $out .= "$vars[1] = $vals[1]";
 
     return $out;
 }
@@ -399,6 +413,14 @@ BEGIN { $INC{'Test/Unit/TestCase.pm'} = __FILE__; }
 package Test::Unit::TestSuite;
 use 5.006;
 our $VERSION = $Test::Unit::Lite::VERSION;
+
+sub name {
+    return $_[0]->{name};
+}
+
+sub units {
+    return $_[0]->{units};
+}
 
 sub empty_new {
     my ($class, $name) = @_;
@@ -418,13 +440,18 @@ sub new {
         'units' => [],
     };
 
-    if (not ref $test) {
+    if (defined $test and not ref $test) {
         eval "use $test;";
+        die $@ if $@;
     }
+    elsif (not defined $test) {
+        $test = $class;
+    }
+    
     if (defined $test and $test->isa('Test::Unit::TestSuite')) {
         $class = ref $test ? ref $test : $test;
-        $self->{name} = $test->{name} if ref $test;
-        $self->{units} = $test->{units} if ref $test;
+        $self->{name} = $test->name if ref $test;
+        $self->{units} = $test->units if ref $test;
     }
     elsif (defined $test and $test->isa('Test::Unit::TestCase')) {
         $class = ref $test ? ref $test : $test;
@@ -443,6 +470,7 @@ sub add_test {
 
     if (not ref $unit) {
         eval "use $unit;";
+        die $@ if $@;
     }
 
     return push @{ $self->{units} }, ref $unit ? $unit : $unit->new;
@@ -453,7 +481,7 @@ sub count_test_cases {
 
     my $plan = 0;
 
-    foreach my $unit (@{ $self->{units} }) {
+    foreach my $unit (@{ $self->units }) {
         $plan += scalar @{ $unit->list_tests };
     }
     return $plan;
@@ -465,13 +493,13 @@ sub run {
     _autoflush(\*STDOUT);
     _autoflush(\*STDERR);
 
-    foreach my $unit (@{ $self->{units} }) {
+    foreach my $unit (@{ $self->units }) {
         $unit->set_up;
         foreach my $test (@{ $unit->list_tests }) {
             eval {
                 $unit->$test;
             };
-            if ("$@" eq '') {
+            if ($@ eq '') {
                 print "ok PASS $test\n";
             }
             else {
@@ -509,27 +537,31 @@ sub new {
     return bless $self => $class;
 }
 
+sub suite {
+    return $_[0]->{suite};
+}
+
 sub start {
     my $self = shift;
     my $test = shift;
 
     eval "use $test;";
-    die $@ if $@ ne '';
+    die $@ if $@;
 
     if ($test->isa('Test::Unit::TestSuite')) {
         $self->{suite} = $test->suite;
     }
     elsif ($test->isa('Test::Unit::TestCase')) {
         $self->{suite} = Test::Unit::TestSuite->empty_new;
-        $self->{suite}->add_test($test);
+        $self->suite->add_test($test);
     }
     else {
         print "# skipping unknown test $test\n";
     }
 
     print "STARTING TEST RUN\n";
-    printf "1..%d\n", $self->{suite}->count_test_cases;
-    $self->{suite}->run;
+    printf "1..%d\n", $self->suite->count_test_cases;
+    $self->suite->run;
 }
 
 BEGIN { $INC{'Test/Unit/TestRunner.pm'} = __FILE__; }
@@ -602,6 +634,10 @@ and can be overrided in derived class.
 =item list_tests
 
 Returns the list of test methods in this class.
+
+=item fail([MESSAGE])
+
+Immediate fail the test.
 
 =item assert(ARG [, MESSAGE])
 
@@ -723,6 +759,10 @@ The test methods are sorted alphabetically.
 =item *
 
 It implements new assertion method: B<assert_deep_not_equals>.
+
+=item *
+
+Does not support B<ok>, B<assert>(CODEREF, @ARGS) and B<multi_assert>.
 
 =back
 

@@ -10,6 +10,10 @@ Fixes:
 Changes:
 
 * Switched to Module::Build.
+* Ported some test units from Test::Unit package.
+* The error messages are more compatible with Test::Unit.
+* Added Test::Unit::TestCase->fail method.
+* Added Test::Unit::TestSuite->name and units accessors.
 
 ------------------------------------------------------------------------
 0.03 | Piotr Roszatycki <dexter@debian.org> | 2007-05-22
