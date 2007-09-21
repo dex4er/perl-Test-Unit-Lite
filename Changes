@@ -7,6 +7,10 @@ Fixes:
 * Autoflush STDOUT and STDERR.
 * The error messages are prefixed with "# " string.
 
+Changes:
+
+* Switched to Module::Build.
+
 ------------------------------------------------------------------------
 0.03 | Piotr Roszatycki <dexter@debian.org> | 2007-05-22
 
