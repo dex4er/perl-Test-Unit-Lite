@@ -1,4 +1,13 @@
 ------------------------------------------------------------------------
+0.04 | Piotr Roszatycki <dexter@debian.org> | 2007-??-??
+
+Fixes:
+
+* Redirect error messages to STDERR.
+* Autoflush STDOUT and STDERR.
+* The error messages are prefixed with "# " string.
+
+------------------------------------------------------------------------
 0.03 | Piotr Roszatycki <dexter@debian.org> | 2007-05-22
 
 Fixes:

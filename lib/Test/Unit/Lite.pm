@@ -2,7 +2,7 @@
 
 package Test::Unit::Lite;
 use 5.006;
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 =head1 NAME
 
@@ -18,14 +18,14 @@ Using as a replacement for Test::Unit:
 
   package FooBarTest;
   use Test::Unit::Lite;   # unnecessary if module isn't directly used
-  use base qw(Test::Unit::TestCase);
-
+  use base 'Test::Unit::TestCase';
+  
   sub new {
       my $self = shift()->SUPER::new(@_);
       # your state for fixture here
       return $self;
   }
-
+  
   sub set_up {
       # provide fixture
   }
@@ -53,7 +53,8 @@ those necessary to run tests are available.
 
 The L<Test::Unit::Lite> can be distributed as a part of package distribution,
 so the package can be distributed without dependency on modules outside
-standard Perl distribution.
+standard Perl distribution.  The L<Test::Unit::Lite> is provided as a single
+file.
 
 =head2 Bundling the L<Test::Unit::Lite> as a part of package distribution
 
@@ -66,22 +67,15 @@ source directory for the package distribution.
 
 use strict;
 
-use Exporter ();
+
 use File::Spec ();
 use File::Basename ();
 use File::Copy ();
 use File::Path ();
 
 
-our @EXPORT = qw[bundle];
-
-
-# Call import from Exporter
-sub import {
-    my $pkg = shift;
-    my $callpkg = caller;
-    Exporter::export($pkg, $callpkg, @_);
-}
+use Exporter 'import';
+our @EXPORT = qw< bundle >;
 
 
 # Copy this module to inc subdirectory of the source distribution
@@ -110,144 +104,6 @@ sub bundle {
 
 
 1;
-
-
-=head1 FUNCTIONS
-
-=over
-
-=item bundle
-
-Copies L<Test::Unit::Lite> modules into F<inc> directory.  Creates missing
-subdirectories if needed.  Silently overwrites previous module if was
-existing.
-
-=back
-
-=head1 EXAMPLES
-
-=head2 t/tlib/SuccessTest.pm
-
-This is the simple unit test module.
-
-  package SuccessTest;
-
-  use strict;
-  use warnings;
-
-  use base 'Test::Unit::TestCase';
-
-  sub test_success {
-    my $self = shift;
-    $self->assert(1);
-  }
-
-  1;
-
-=head2 t/tlib/AllTests.pm
-
-This is the test suite which calls all test cases located in F<t/tlib>
-directory.
-
-  package AllTests;
-
-  use base 'Test::Unit::TestSuite';
-
-  use File::Find ();
-  use File::Basename ();
-  use File::Spec ();
-
-  sub new {
-      return bless {}, shift;
-  }
-
-  sub suite {
-      my $class = shift;
-      my $suite = Test::Unit::TestSuite->empty_new("Tests");
-
-      my $dir = (File::Basename::dirname(__FILE__));
-      my $depth = scalar File::Spec->splitdir($dir);
-
-      File::Find::find({
-          wanted => sub {
-              my $path = File::Spec->canonpath($File::Find::name);
-              return unless $path =~ s/\.pm$//;
-              my @path = File::Spec->splitdir($path);
-              splice @path, 0, $depth;
-              return unless scalar @path > 0;
-              my $class = join '::', @path;
-              return unless $class;
-              return if $class =~ /^Test::Unit::/;
-              return if @ARGV and $class !~ $ARGV[0];
-              return unless eval "use $class; "
-                  . "$class->isa('Test::Unit::TestCase');";
-              $suite->add_test($class);
-          },
-          no_chdir => 1,
-      }, $dir || '.');
-
-      return $suite;
-  }
-
-  1;
-
-=head2 t/all_tests.t
-
-This is the test script for L<Test::Harness> called with "make test".
-
-  #!/usr/bin/perl -w
-
-  use strict;
-  use lib 'inc', 't/tlib', 'tlib';  # inc is needed for bundled T::U::L
-
-  use Test::Unit::Lite;  # load the Test::Unit replacement
-  use Test::Unit::HarnessUnit;
-
-  my $testrunner = Test::Unit::HarnessUnit->new();
-  $testrunner->start("AllTests");
-
-=head2 t/test.sh
-
-This is the optional shell script for calling test suite directly.
-
-  #!/bin/sh
-  set -e
-  cd `dirname $0`
-  cd ..
-  PERL=${PERL:-perl}
-  find t/tlib -name '*.pm' -print | while read pm; do
-      $PERL -Iinc -Ilib -It/tlib -MTest::Unit::Lite -c "$pm"
-  done
-  $PERL -w -Iinc -Ilib -It/tlib t/all_tests.t "$@"
-
-=head1 SEE ALSO
-
-L<Test::Unit>, L<Test::Unit::TestCase>, L<Test::Unit::TestSuite>,
-L<Test::Unit::Assert>, L<Test::Unit::TestRunner>, L<Test::Unit::HarnessUnit>.
-
-=head1 TESTS
-
-The L<Test::Unit::Lite> was tested as a L<Test::Unit> replacement for following
-distributions: L<Test::C2FIT>, L<XAO::Base>, L<Exception::Base>.
-
-=head1 BUGS
-
-If you find the bug or need new feature, please report it.
-
-=head1 AUTHORS
-
-Piotr Roszatycki E<lt>dexter@debian.orgE<gt>
-
-=head1 LICENSE
-
-Copyright 2007 by Piotr Roszatycki E<lt>dexter@debian.orgE<gt>.
-
-This program is free software; you can redistribute it and/or modify it under
-the same terms as Perl itself.
-
-See L<http://www.perl.com/perl/misc/Artistic.html>
-
-=cut
 
 
 package Test::Unit::TestCase;
@@ -280,19 +136,22 @@ sub list_tests {
 }
 
 sub __croak {
-    my $message = shift;
-    $message = '' unless defined $message;
+    my ($default_message, $custom_message) = @_;
+    $default_message = '' unless defined $default_message;
+    $custom_message = '' unless defined $custom_message;
     my $n = 1;
 
-    my($file, $line) = (caller($n++))[1,2];
+    my ($file, $line) = (caller($n++))[1,2];
     my $caller;
-    $n++ while (defined($caller = caller($n)) and $caller ne 'Test::Unit::TestSuite');
+    $n++ while (defined( $caller = caller($n) ) and not eval { $caller->isa('Test::Unit::TestSuite') });
 
     my $sub = (caller($n))[3];
     $sub =~ /^(.*)::([^:]*)$/;
-    my($test, $unit) = ($1, $2);
+    my ($test, $unit) = ($1, $2);
 
-    die sprintf "%s:%s - %s(%s)\n%s\n", $file, $line, $test, $unit, $message;
+    my $message = "$file:$line - $test($unit)\n$default_message\n$custom_message";
+    chomp $message;
+    die $message;
 }
 
 sub assert {
@@ -300,123 +159,115 @@ sub assert {
     my $arg1 = shift;
     if (ref $arg1 eq 'Regexp') {
         my $arg2 = shift;
-        __croak "$arg2 didn't match /$arg1/" unless $arg2 =~ $arg1;
+        my $msg = shift;
+        __croak "$arg2 didn't match /$arg1/", $msg unless $arg2 =~ $arg1;
     }
     else {
-        __croak "Boolean assertion failed" unless $arg1;
+        my $msg = shift;
+        __croak "Boolean assertion failed", $msg unless $arg1;
     }
 }
 
 sub assert_null {
-    my $self = shift;
-    my $arg = shift;
-    __croak "$arg is defined" unless not defined $arg;
+    my ($self, $arg, $msg) = @_;
+    __croak "$arg is defined", $msg unless not defined $arg;
 }
 
 sub assert_not_null {
-    my $self = shift;
-    my $arg = shift;
-    __croak "<undef> unexpected" unless defined $arg;
+    my ($self, $arg, $msg) = @_;
+    __croak "<undef> unexpected", $msg unless defined $arg;
 }
 
 sub assert_equals {
-    my $self = shift;
-    my $arg1 = shift;
-    __croak "expected value was undef; should be using assert_null?" unless defined $arg1;
-    my $arg2 = shift;
-    __croak "expected '$arg1', got undef" unless defined $arg2;
+    my ($self, $arg1, $arg2, $msg) = @_;
+    __croak "expected value was undef; should be using assert_null?", $msg unless defined $arg1;
+    __croak "expected '$arg1', got undef", $msg unless defined $arg2;
     if ($arg1 =~ /^([+-]?(\d+\.\d+|\d+\.|\.\d+|\d+)([eE][+-]?\d+)?)?$/ and
         $arg2 =~ /^([+-]?(\d+\.\d+|\d+\.|\.\d+|\d+)([eE][+-]?\d+)?)?$/)
     {
         local $^W;
-        __croak "expected $arg1, got $arg2" unless $arg1 == $arg2;
+        __croak "expected $arg1, got $arg2", $msg unless $arg1 == $arg2;
     }
     else {
-        __croak "expected '$arg1', got '$arg2'" unless $arg1 eq $arg2;
+        __croak "expected '$arg1', got '$arg2'", $msg unless $arg1 eq $arg2;
     }
 }
 
 sub assert_not_equals {
-    my $self = shift;
-    my $arg1 = shift;
-    __croak "expected value was undef; should be using assert_null?" unless defined $arg1;
-    my $arg2 = shift;
-    __croak "expected '$arg1', got undef" unless defined $arg2;
+    my ($self, $arg1, $arg2, $msg) = @_;
+    __croak "expected value was undef; should be using assert_null?", $msg unless defined $arg1;
+    __croak "expected '$arg1', got undef", $msg unless defined $arg2;
     if ($arg1 =~ /^([+-]?(\d+\.\d+|\d+\.|\.\d+|\d+)([eE][+-]?\d+)?)?$/ and
         $arg2 =~ /^([+-]?(\d+\.\d+|\d+\.|\.\d+|\d+)([eE][+-]?\d+)?)?$/)
     {
         local $^W;
-        __croak "$arg1 and $arg2 should be differ" unless $arg1 != $arg2;
+        __croak "$arg1 and $arg2 should be differ", $msg unless $arg1 != $arg2;
     }
     else {
-        __croak "'$arg1' and '$arg2' should be differ'" unless $arg1 ne $arg2;
+        __croak "'$arg1' and '$arg2' should be differ'", $msg unless $arg1 ne $arg2;
     }
 }
 
 sub assert_num_equals {
-    my $self = shift;
-    my $arg1 = shift;
-    __croak "expected value was undef; should be using assert_null?" unless defined $arg1;
-    my $arg2 = shift;
-    __croak "expected '$arg1', got undef" unless defined $arg2;
+    my ($self, $arg1, $arg2, $msg) = @_;
+    __croak "expected value was undef; should be using assert_null?", $msg unless defined $arg1;
+    __croak "expected '$arg1', got undef", $msg unless defined $arg2;
     local $^W;
-    __croak "expected $arg1, got $arg2" unless $arg1 == $arg2;
+    __croak "expected $arg1, got $arg2", $msg unless $arg1 == $arg2;
 }
 
 sub assert_num_not_equals {
-    my $self = shift;
-    my $arg1 = shift;
-    __croak "expected value was undef; should be using assert_null?" unless defined $arg1;
-    my $arg2 = shift;
-    __croak "expected '$arg1', got undef" unless defined $arg2;
+    my ($self, $arg1, $arg2, $msg) = @_;
+    __croak "expected value was undef; should be using assert_null?", $msg unless defined $arg1;
+    __croak "expected '$arg1', got undef", $msg unless defined $arg2;
     local $^W;
-    __croak "$arg1 and $arg2 should be differ" unless $arg1 != $arg2;
+    __croak "$arg1 and $arg2 should be differ", $msg unless $arg1 != $arg2;
 }
 
 sub assert_str_equals {
-    my $self = shift;
-    my $arg1 = shift;
-    __croak "expected value was undef; should be using assert_null?" unless defined $arg1;
-    my $arg2 = shift;
-    __croak "expected '$arg1', got undef" unless defined $arg2;
-    __croak "expected '$arg1', got '$arg2'" unless $arg1 eq $arg2;
+    my ($self, $arg1, $arg2, $msg) = @_;
+    __croak "expected value was undef; should be using assert_null?", $msg unless defined $arg1;
+    __croak "expected '$arg1', got undef", $msg unless defined $arg2;
+    __croak "expected '$arg1', got '$arg2'", $msg unless $arg1 eq $arg2;
 }
 
 sub assert_str_not_equals {
-    my $self = shift;
-    my $arg1 = shift;
-    __croak "expected value was undef; should be using assert_null?" unless defined $arg1;
-    my $arg2 = shift;
-    __croak "expected '$arg1', got undef" unless defined $arg2;
-    __croak "'$arg1' and '$arg2' should be differ'" unless $arg1 ne $arg2;
+    my ($self, $arg1, $arg2, $msg) = @_;
+    __croak "expected value was undef; should be using assert_null?", $msg unless defined $arg1;
+    __croak "expected '$arg1', got undef", $msg unless defined $arg2;
+    __croak "'$arg1' and '$arg2' should be differ'", $msg unless $arg1 ne $arg2;
 }
 
 sub assert_matches {
-    my $self = shift;
-    my $arg1 = shift;
-    __croak "arg 1 to assert_matches() must be a regexp" unless ref $arg1 eq 'Regexp';
-    my $arg2 = shift;
-    __croak "$arg2 didn't match /$arg1/" unless $arg2 =~ $arg1;
+    my ($self, $arg1, $arg2, $msg) = @_;
+    __croak "arg 1 to assert_matches() must be a regexp", $msg unless ref $arg1 eq 'Regexp';
+    __croak "$arg2 didn't match /$arg1/", $msg unless $arg2 =~ $arg1;
 }
 
 sub assert_does_not_match {
-    my $self = shift;
-    my $arg1 = shift;
-    __croak "arg 1 to assert_does_not_match() must be a regexp" unless ref $arg1 eq 'Regexp';
-    my $arg2 = shift;
-    __croak "$arg2 matched /$arg1/" unless $arg2 !~ $arg1;
+    my ($self, $arg1, $arg2, $msg) = @_;
+    __croak "arg 1 to assert_does_not_match() must be a regexp", $msg unless ref $arg1 eq 'Regexp';
+    __croak "$arg2 matched /$arg1/", $msg unless $arg2 !~ $arg1;
 }
 
 sub assert_deep_equals {
-    my $self = shift;
-    my $arg1 = shift;
-    my $arg2 = shift;
+    my ($self, $arg1, $arg2, $msg) = @_;
 
-    __croak 'Both arguments were not references' unless ref $arg1 and ref $arg2;
+    __croak 'Both arguments were not references', $msg unless ref $arg1 and ref $arg2;
 
     local @Data_Stack = ();
     local %Seen_Refs = ();
-    __croak $self->_format_stack(@Data_Stack) unless $self->_deep_check($arg1, $arg2);
+    __croak $self->_format_stack(@Data_Stack), $msg unless $self->_deep_check($arg1, $arg2);
+}
+
+sub assert_deep_not_equals {
+    my ($self, $arg1, $arg2, $msg) = @_;
+
+    __croak 'Both arguments were not references', $msg unless ref $arg1 and ref $arg2;
+
+    local @Data_Stack = ();
+    local %Seen_Refs = ();
+    __croak $self->_format_stack(@Data_Stack), $msg if $self->_deep_check($arg1, $arg2);
 }
 
 sub _deep_check {
@@ -550,8 +401,7 @@ use 5.006;
 our $VERSION = $Test::Unit::Lite::VERSION;
 
 sub empty_new {
-    my $class = shift;
-    my $name = shift;
+    my ($class, $name) = @_;
     my $self = {
         'name' => defined $name ? $name : 'Test suite',
         'units' => [],
@@ -561,8 +411,7 @@ sub empty_new {
 }
 
 sub new {
-    my $class = shift;
-    my $test = shift;
+    my ($class, $test) = @_;
 
     my $self = {
         'name' => 'Test suite',
@@ -590,15 +439,17 @@ sub new {
 }
 
 sub add_test {
-    my $self = shift;
-    my $unit = shift;
+    my ($self, $unit) = @_;
 
-    eval "use $unit;";
-    return push @{ $self->{units} }, $unit->new;
+    if (not ref $unit) {
+        eval "use $unit;";
+    }
+
+    return push @{ $self->{units} }, ref $unit ? $unit : $unit->new;
 }
 
 sub count_test_cases {
-    my $self = shift;
+    my ($self) = @_;
 
     my $plan = 0;
 
@@ -609,7 +460,10 @@ sub count_test_cases {
 }
 
 sub run {
-    my $self = shift;
+    my ($self) = @_;
+
+    _autoflush(\*STDOUT);
+    _autoflush(\*STDERR);
 
     foreach my $unit (@{ $self->{units} }) {
         $unit->set_up;
@@ -621,12 +475,21 @@ sub run {
                 print "ok PASS $test\n";
             }
             else {
-                print "\nnot ok ERROR $test\n", $@;
+                print "\nnot ok ERROR $test\n";
+                print STDERR join("\n# ", split /\n/, "# $@"), "\n";
             }
         }
         $unit->tear_down;
     }
     return;
+}
+
+# Turns on autoflush for the handle passed
+sub _autoflush {
+    my ($fh) = @_;
+    my $old_fh = select $fh;
+    $| = 1;
+    select $old_fh;
 }
 
 BEGIN { $INC{'Test/Unit/TestSuite.pm'} = __FILE__; }
@@ -692,3 +555,297 @@ our $VERSION = $Test::Unit::Lite::VERSION;
 BEGIN { $INC{'Test/Unit/Debug.pm'} = __FILE__; }
 
 1;
+
+
+__END__
+
+=for readme stop
+
+=head1 FUNCTIONS
+
+=over
+
+=item bundle
+
+Copies L<Test::Unit::Lite> modules into F<inc> directory.  Creates missing
+subdirectories if needed.  Silently overwrites previous module if was
+existing.
+
+=back
+
+=head1 CLASSES
+
+=head2 L<Test::Unit::TestCase>
+
+This is a base class for single unit test module.  The user's unit test
+module can override the default methods that are simple stubs.
+
+The MESSAGE argument is optional and is included to the default error message
+when the assertion is false.
+
+=over
+
+=item new
+
+The default constructor which just bless an empty anonymous hash reference.
+
+=item set_up
+
+This method is called at the start of test unit processing.  It is empty
+method and can be overrided in derived class.
+
+=item tear_down
+
+This method is called at the end of test unit processing.  It is empty method
+and can be overrided in derived class.
+
+=item list_tests
+
+Returns the list of test methods in this class.
+
+=item assert(ARG [, MESSAGE])
+
+Checks if ARG expression returns true value.
+
+=item assert_null(ARG [, MESSAGE])
+
+=item assert_not_null(ARG [, MESSAGE])
+
+Checks if ARG is defined or not defined.
+
+=item assert_equals(ARG1, ARG2 [, MESSAGE])
+
+=item assert_not_equals(ARG1, ARG2 [, MESSAGE])
+
+Checks if ARG1 and ARG2 are equals or not equals.  If ARG1 and ARG2 look like
+numbers then they are compared with '==' operator, otherwise the string 'eq'
+operator is used.
+
+=item assert_num_equals(ARG1, ARG2 [, MESSAGE])
+
+=item assert_num_not_equals(ARG1, ARG2 [, MESSAGE])
+
+Force numeric comparition.
+
+=item assert_str_equals(ARG1, ARG2 [, MESSAGE])
+
+=item assert_str_not_equals(ARG1, ARG2 [, MESSAGE])
+
+Force string comparition.
+
+=item assert(qr/PATTERN/, ARG [, MESSAGE])
+
+=item assert_matches(qr/PATTERN/, ARG [, MESSAGE])
+
+=item assert_does_not_match(qr/PATTERN/, ARG [, MESSAGE])
+
+Checks if ARG matches PATTER regexp.
+
+=item assert_deep_equals(ARG1, ARG2 [, MESSAGE])
+
+=item assert_deep_not_equals(ARG1, ARG2 [, MESSAGE])
+
+Check if reference ARG1 is a deep copy of reference ARG2 or not.  The
+references can be deep structure.  If they are different, the message will
+display the place where they start differing.
+
+=back
+
+=head2 L<Test::Unit::TestSuite>
+
+This is a base class for test suite, which groups several test units.
+
+=over
+
+=item empty_new([NAME])
+
+Creates a fresh suite with no tests.
+
+=item new([CLASS | TEST])
+
+Creates a test suite from unit test name or class.  If a test suite is
+provided as the argument, it merely returns that suite.  If a test case is
+provided, it extracts all test case methods (see
+L<Test::Unit::TestCase>->list_test) from the test case into a new test suite.
+
+=item add_test([TEST_CLASSNAME | TEST_OBJECT])
+
+Adds the test object to a suite.
+
+=item count_test_cases
+
+Returns the number of test cases in this suite.
+
+=item run
+
+Runs the test suite and output the results as TAP report.
+
+=back
+
+=head2 L<Test::Unit::TestRunner>
+
+This is the test runner which outputs in the same format that
+L<Test::Harness> expects.
+
+=over
+
+=item new
+
+The constructor for whole test framework.
+
+=item start(TEST_SUITE)
+
+Starts the test suite.
+
+=back
+
+=head2 L<Test::Unit::HarnessUnit>
+
+In fact it is an empty class which inherits all methods on
+L<Test::Unit::TestRunner> class.
+
+=head2 L<Test::Unit::Debug>
+
+The empty class which is provided for compatibility with original
+L<Test::Unit> framework.
+
+=head1 COMPATIBILITY
+
+L<Test::Unit::Lite> should be compatible with public API of L<Test::Unit>. 
+The L<Test::Unit::Lite> also has some known incompatibilities:
+
+=over 2
+
+=item *
+
+The test methods are sorted alphabetically.
+
+=item *
+
+It implements new assertion method: B<assert_deep_not_equals>.
+
+=back
+
+=head1 EXAMPLES
+
+=head2 t/tlib/SuccessTest.pm
+
+This is the simple unit test module.
+
+  package SuccessTest;
+
+  use strict;
+  use warnings;
+
+  use base 'Test::Unit::TestCase';
+
+  sub test_success {
+    my $self = shift;
+    $self->assert(1);
+  }
+
+  1;
+
+=head2 t/tlib/AllTests.pm
+
+This is the test suite which calls all test cases located in F<t/tlib>
+directory.
+
+  package AllTests;
+  
+  use base 'Test::Unit::TestSuite';
+  
+  use File::Find ();
+  use File::Basename ();
+  use File::Spec ();
+  
+  sub new {
+      return bless {}, shift;
+  }
+  
+  sub suite {
+      my $class = shift;
+      my $suite = Test::Unit::TestSuite->empty_new("Framework Tests");
+  
+      my $dir = (File::Basename::dirname(__FILE__));
+      my $depth = scalar File::Spec->splitdir($dir);
+  
+      File::Find::find({
+          wanted => sub {
+              my $path = File::Spec->canonpath($File::Find::name);
+              return unless $path =~ s/\.pm$//;
+              my @path = File::Spec->splitdir($path);
+              splice @path, 0, $depth;
+              return unless scalar @path > 0;
+              my $class = join '::', @path;
+              return unless $class;
+              return if $class =~ /^Test::Unit::/;
+              return if @ARGV and $class !~ $ARGV[0];
+              return unless eval "use $class; $class->isa('Test::Unit::TestCase');";
+              $suite->add_test($class);
+          },
+          no_chdir => 1,
+      }, $dir || '.');
+  
+      return $suite;
+  }
+  
+  1;
+
+=head2 t/all_tests.t
+
+This is the test script for L<Test::Harness> called with "make test".
+
+  #!/usr/bin/perl -w
+
+  use strict;
+  use lib 'inc', 't/tlib', 'tlib';  # inc is needed for bundled T::U::L
+
+  use Test::Unit::Lite;  # load the Test::Unit replacement
+  use Test::Unit::HarnessUnit;
+
+  my $testrunner = Test::Unit::HarnessUnit->new();
+  $testrunner->start("AllTests");
+
+=head2 t/test.sh
+
+This is the optional shell script for calling test suite directly.
+
+  #!/bin/sh
+  set -e
+  cd `dirname $0`
+  cd ..
+  PERL=${PERL:-perl}
+  find t/tlib -name '*.pm' -print | while read pm; do
+      $PERL -Iinc -Ilib -It/tlib -MTest::Unit::Lite -c "$pm"
+  done
+  $PERL -w -Iinc -Ilib -It/tlib t/all_tests.t "$@"
+
+=head1 SEE ALSO
+
+L<Test::Unit>, L<Test::Unit::TestCase>, L<Test::Unit::TestSuite>,
+L<Test::Unit::Assert>, L<Test::Unit::TestRunner>, L<Test::Unit::HarnessUnit>.
+
+=head1 TESTS
+
+The L<Test::Unit::Lite> was tested as a L<Test::Unit> replacement for following
+distributions: L<Test::C2FIT>, L<XAO::Base>, L<Exception::Base>.
+
+=head1 BUGS
+
+If you find the bug or need new feature, please report it.
+
+=for readme continue
+
+=head1 AUTHOR
+
+Piotr Roszatycki E<lt>dexter@debian.orgE<gt>
+
+=head1 LICENSE
+
+Copyright 2007 by Piotr Roszatycki E<lt>dexter@debian.orgE<gt>.
+
+This program is free software; you can redistribute it and/or modify it under
+the same terms as Perl itself.
+
+See L<http://www.perl.com/perl/misc/Artistic.html>
