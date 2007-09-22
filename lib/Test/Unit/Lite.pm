@@ -414,14 +414,6 @@ package Test::Unit::TestSuite;
 use 5.006;
 our $VERSION = $Test::Unit::Lite::VERSION;
 
-sub name {
-    return $_[0]->{name};
-}
-
-sub units {
-    return $_[0]->{units};
-}
-
 sub empty_new {
     my ($class, $name) = @_;
     my $self = {
@@ -463,6 +455,14 @@ sub new {
     }
 
     return bless $self => $class;
+}
+
+sub name {
+    return $_[0]->{name};
+}
+
+sub units {
+    return $_[0]->{units};
 }
 
 sub add_test {
@@ -704,6 +704,14 @@ provided as the argument, it merely returns that suite.  If a test case is
 provided, it extracts all test case methods (see
 L<Test::Unit::TestCase>->list_test) from the test case into a new test suite.
 
+=item name
+
+Contains the name of the current test suite.
+
+=item units
+
+Contains the list of test units.
+
 =item add_test([TEST_CLASSNAME | TEST_OBJECT])
 
 Adds the test object to a suite.
@@ -728,6 +736,10 @@ L<Test::Harness> expects.
 =item new
 
 The constructor for whole test framework.
+
+=item suite
+
+Contains the test suite object.
 
 =item start(TEST_SUITE)
 
