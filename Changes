@@ -10,6 +10,7 @@ Fixes:
 Changes:
 
 * Switched to Module::Build.
+* Documentation of API.
 * Ported some test units from Test::Unit package.
 * The error messages are more compatible with Test::Unit.
 * Added Test::Unit::TestCase->fail method.
