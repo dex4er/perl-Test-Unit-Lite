@@ -234,21 +234,21 @@ sub assert_num_not_equals {
     __croak "expected value was undef; should be using assert_null?", $msg unless defined $arg1;
     __croak "expected '$arg1', got undef", $msg unless defined $arg2;
     local $^W;
-    __croak "$arg1 and $arg2 should be differ", $msg unless $arg1 != $arg2;
+    __croak "$arg1 and $arg2 should differ", $msg unless $arg1 != $arg2;
 }
 
 sub assert_str_equals {
     my ($self, $arg1, $arg2, $msg) = @_;
     __croak "expected value was undef; should be using assert_null?", $msg unless defined $arg1;
     __croak "expected '$arg1', got undef", $msg unless defined $arg2;
-    __croak "expected '$arg1', got '$arg2'", $msg unless $arg1 eq $arg2;
+    __croak "expected '$arg1', got '$arg2'", $msg unless "$arg1" eq "$arg2";
 }
 
 sub assert_str_not_equals {
     my ($self, $arg1, $arg2, $msg) = @_;
     __croak "expected value was undef; should be using assert_null?", $msg unless defined $arg1;
     __croak "expected '$arg1', got undef", $msg unless defined $arg2;
-    __croak "'$arg1' and '$arg2' should be differ'", $msg unless $arg1 ne $arg2;
+    __croak "'$arg1' and '$arg2' should differ", $msg unless "$arg1" ne "$arg2";
 }
 
 sub assert_matches {
@@ -265,9 +265,7 @@ sub assert_does_not_match {
 
 sub assert_deep_equals {
     my ($self, $arg1, $arg2, $msg) = @_;
-
     __croak 'Both arguments were not references', $msg unless ref $arg1 and ref $arg2;
-
     local @Data_Stack = ();
     local %Seen_Refs = ();
     __croak $self->_format_stack(@Data_Stack), $msg unless $self->_deep_check($arg1, $arg2);
