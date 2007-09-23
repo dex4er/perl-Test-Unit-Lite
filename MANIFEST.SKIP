@@ -39,3 +39,5 @@
 \.gz$
 \.ppd$
 \.tgz$
+
+\bTest-Unit-Lite-

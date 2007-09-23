@@ -2,7 +2,7 @@
 
 package Test::Unit::Lite;
 use 5.006;
-our $VERSION = '0.04';
+our $VERSION = 0.04_01;
 
 =head1 NAME
 
@@ -74,7 +74,8 @@ use File::Copy ();
 use File::Path ();
 
 
-use Exporter 'import';
+use Exporter ();
+*import = \&Exporter::import;
 our @EXPORT = qw< bundle >;
 
 
