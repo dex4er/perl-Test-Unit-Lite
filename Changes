@@ -1,4 +1,22 @@
 ------------------------------------------------------------------------
+0.04 | Piotr Roszatycki <dexter@debian.org> | 2007-09-23
+
+Fixes:
+
+* Redirect error messages to STDERR.
+* Autoflush STDOUT and STDERR.
+* The error messages are prefixed with "# " string.
+
+Changes:
+
+* Switched to Module::Build.
+* Documentation of API.
+* Ported some test units from Test::Unit package.
+* The error messages are more compatible with Test::Unit.
+* Added Test::Unit::TestCase->fail method.
+* Added Test::Unit::TestSuite->name and units accessors.
+
+------------------------------------------------------------------------
 0.03 | Piotr Roszatycki <dexter@debian.org> | 2007-05-22
 
 Fixes:

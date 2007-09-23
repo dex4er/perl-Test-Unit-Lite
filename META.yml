@@ -1,16 +1,34 @@
---- #YAML:1.0
+---
 name: Test-Unit-Lite
-abstract: Unit testing without external dependencies
-version: 0.03
+version: 0.04
 author:
-  - Piotr Roszatycki <dexter@debian.org>
+  - 'Piotr Roszatycki <dexter@debian.org>'
+abstract: Unit testing without external dependencies
 license: perl
-distribution_type: module
+resources:
+  license: http://dev.perl.org/licenses/
 requires:
   perl: 5.006
-urls:
-  license: http://dev.perl.org/licenses/
+provides:
+  Test::Unit::Debug:
+    file: lib/Test/Unit/Lite.pm
+    version: 0
+  Test::Unit::HarnessUnit:
+    file: lib/Test/Unit/Lite.pm
+    version: 0
+  Test::Unit::Lite:
+    file: lib/Test/Unit/Lite.pm
+    version: 0.04
+  Test::Unit::TestCase:
+    file: lib/Test/Unit/Lite.pm
+    version: 0
+  Test::Unit::TestRunner:
+    file: lib/Test/Unit/Lite.pm
+    version: 0
+  Test::Unit::TestSuite:
+    file: lib/Test/Unit/Lite.pm
+    version: 0
+generated_by: Module::Build version 0.2808
 meta-spec:
-  version: 1.3
-  url: http://module-build.sourceforge.net/META-spec-v1.3.html
-generated_by: Piotr Roszatycki <dexter@debian.org>
+  url: http://module-build.sourceforge.net/META-spec-v1.2.html
+  version: 1.2

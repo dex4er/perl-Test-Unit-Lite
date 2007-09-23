@@ -1,7 +1,10 @@
+Build.PL
 Changes
+eg/README
 lib/Test/Unit/Lite.pm
 Makefile.PL
 MANIFEST			This list of files
+META.yml
 README
 t/all_tests.t
 t/cover.sh
@@ -9,5 +12,16 @@ t/pod.t
 t/pod_coverage.t
 t/test.sh
 t/tlib/AllTests.pm
-t/tlib/SuccessTest.pm
-META.yml                                 Module meta-data (added by MakeMaker)
+t/tlib/AssertTest.pm
+t/tlib/ExceptionChecker.pm
+t/tlib/InheritedSuite/OverrideNew.pm
+t/tlib/InheritedSuite/OverrideNewName.pm
+t/tlib/InheritedSuite/Simple.pm
+t/tlib/InheritedSuite/TestNames.pm
+t/tlib/NoTestCaseClass.pm
+t/tlib/NoTestCases.pm
+t/tlib/OneTestCase.pm
+t/tlib/OverrideTestCase.pm
+t/tlib/Success.pm
+t/tlib/TestObject.pm
+t/tlib/WillDie.pm
