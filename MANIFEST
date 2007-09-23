@@ -23,6 +23,5 @@ t/tlib/NoTestCases.pm
 t/tlib/OneTestCase.pm
 t/tlib/OverrideTestCase.pm
 t/tlib/Success.pm
-t/tlib/SuccessTest.pm
 t/tlib/TestObject.pm
 t/tlib/WillDie.pm
