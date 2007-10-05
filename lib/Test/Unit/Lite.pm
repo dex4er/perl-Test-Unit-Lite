@@ -2,7 +2,7 @@
 
 package Test::Unit::Lite;
 use 5.006;
-our $VERSION = 0.04_02;
+our $VERSION = 0.05;
 
 =head1 NAME
 
@@ -19,13 +19,13 @@ Using as a replacement for Test::Unit:
   package FooBarTest;
   use Test::Unit::Lite;   # unnecessary if module isn't directly used
   use base 'Test::Unit::TestCase';
-  
+
   sub new {
       my $self = shift()->SUPER::new(@_);
       # your state for fixture here
       return $self;
   }
-  
+
   sub set_up {
       # provide fixture
   }
@@ -438,7 +438,7 @@ sub new {
     elsif (not defined $test) {
         $test = $class;
     }
-    
+
     if (defined $test and $test->isa('Test::Unit::TestSuite')) {
         $class = ref $test ? ref $test : $test;
         $self->{name} = $test->name if ref $test;
@@ -495,14 +495,15 @@ sub run {
     foreach my $unit (@{ $self->units }) {
         $unit->set_up;
         foreach my $test (@{ $unit->list_tests }) {
+            my $unit_test = (ref $unit ? ref $unit : $unit) . '::' . $test;
             eval {
                 $unit->$test;
             };
             if ($@ eq '') {
-                print "ok PASS $test\n";
+                print "ok PASS $unit_test\n";
             }
             else {
-                print "\nnot ok ERROR $test\n";
+                print "\nnot ok ERROR $unit_test\n";
                 print STDERR join("\n# ", split /\n/, "# $@"), "\n";
             }
         }
@@ -758,7 +759,7 @@ L<Test::Unit> framework.
 
 =head1 COMPATIBILITY
 
-L<Test::Unit::Lite> should be compatible with public API of L<Test::Unit>. 
+L<Test::Unit::Lite> should be compatible with public API of L<Test::Unit>.
 The L<Test::Unit::Lite> also has some known incompatibilities:
 
 =over 2
@@ -803,24 +804,24 @@ This is the test suite which calls all test cases located in F<t/tlib>
 directory.
 
   package AllTests;
-  
+
   use base 'Test::Unit::TestSuite';
-  
+
   use File::Find ();
   use File::Basename ();
   use File::Spec ();
-  
+
   sub new {
       return bless {}, shift;
   }
-  
+
   sub suite {
       my $class = shift;
       my $suite = Test::Unit::TestSuite->empty_new("Framework Tests");
-  
+
       my $dir = (File::Basename::dirname(__FILE__));
       my $depth = scalar File::Spec->splitdir($dir);
-  
+
       File::Find::find({
           wanted => sub {
               my $path = File::Spec->canonpath($File::Find::name);
@@ -837,10 +838,10 @@ directory.
           },
           no_chdir => 1,
       }, $dir || '.');
-  
+
       return $suite;
   }
-  
+
   1;
 
 =head2 t/all_tests.t
