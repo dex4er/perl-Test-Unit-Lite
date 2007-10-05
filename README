@@ -11,13 +11,13 @@ SYNOPSIS
       package FooBarTest;
       use Test::Unit::Lite;   # unnecessary if module isn't directly used
       use base 'Test::Unit::TestCase';
-  
+
       sub new {
           my $self = shift()->SUPER::new(@_);
           # your state for fixture here
           return $self;
       }
-  
+
       sub set_up {
           # provide fixture
       }

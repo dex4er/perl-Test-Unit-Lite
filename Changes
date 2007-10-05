@@ -1,4 +1,15 @@
 ------------------------------------------------------------------------
+0.05 | Piotr Roszatycki <dexter@debian.org> | 2007-10-05
+
+Changes:
+
+* Print Class::Name::test_sub in TAP output.
+
+Fixes:
+
+* Reformat whitespaces in source code.
+
+------------------------------------------------------------------------
 0.04_02 | Piotr Roszatycki <dexter@debian.org> | 2007-09-27
 
 Fixes:

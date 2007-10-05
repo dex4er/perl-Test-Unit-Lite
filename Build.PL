@@ -22,6 +22,7 @@ my $build = Module::Build->new(
     add_to_cleanup => [
         'META.yml', '*.bak', '*.gz', '*.tgz', '*.ppd',
         'Makefile.PL', 'Makefile', 'pm_to_blib', 'README', 'cover_db',
+	'Test-Unit-Lite-*',
     ],
 );
 
