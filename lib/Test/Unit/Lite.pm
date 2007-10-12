@@ -2,7 +2,7 @@
 
 package Test::Unit::Lite;
 use 5.006;
-our $VERSION = 0.05;
+our $VERSION = 0.05_01;
 
 =head1 NAME
 
@@ -74,8 +74,12 @@ use File::Copy ();
 use File::Path ();
 
 
-use Exporter ();
-*import = \&Exporter::import;
+# Compatibility with Kurila
+BEGIN { *Symbol::fetch_glob = sub ($) { $_[0] } unless defined &Symbol::fetch_glob; }
+
+
+# Can't use Exporter 'import'. Compatibility with Perl 5.6
+use Exporter (); *import = \&Exporter::import;
 our @EXPORT = qw< bundle >;
 
 
@@ -132,7 +136,7 @@ sub list_tests {
     my $class = ref $self || $self;
 
     no strict 'refs';
-    my @tests = sort grep { /^test_/ } keys %{$class.'::'};
+    my @tests = sort grep { /^test_/ } keys %{ *{Symbol::fetch_glob($class.'::')} };
     return wantarray ? @tests : [ @tests ];
 }
 

@@ -1,4 +1,17 @@
 ------------------------------------------------------------------------
+0.06 | Piotr Roszatycki <dexter@debian.org> | 2007-10-12
+
+New:
+
+* HarnessUnit is more specialized TestRunner.
+* TestRunner prints just statistics.
+
+Changes:
+
+* Compatibility with Kurila 1.4.
+* New test units for bad suites.
+
+------------------------------------------------------------------------
 0.05 | Piotr Roszatycki <dexter@debian.org> | 2007-10-05
 
 Changes:
