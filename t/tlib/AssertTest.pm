@@ -47,7 +47,7 @@ sub test_assert {
 
         'bang'  => [ __LINE__, sub { shift->assert(0, 'bang')              } ],
         'bang'  => [ __LINE__, sub { shift->assert('', 'bang')             } ],
-        "'qux' did not match /(?-xism:foo)/"
+        qr/did not match /
                 => [ __LINE__, sub { shift->assert(qr/foo/, 'qux')         } ],
         'bang'  => [ __LINE__, sub { shift->assert(qr/foo/, 'qux', 'bang') } ],
     );

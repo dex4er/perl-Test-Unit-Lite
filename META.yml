@@ -1,6 +1,6 @@
 ---
 name: Test-Unit-Lite
-version: 0.05
+version: 0.06
 author:
   - 'Piotr Roszatycki <dexter@debian.org>'
 abstract: Unit testing without external dependencies
@@ -18,7 +18,13 @@ provides:
     version: 0
   Test::Unit::Lite:
     file: lib/Test/Unit/Lite.pm
-    version: 0.05
+    version: 0.06
+  Test::Unit::Lite::AllTests:
+    file: lib/Test/Unit/Lite.pm
+    version: 0
+  Test::Unit::Result:
+    file: lib/Test/Unit/Lite.pm
+    version: 0
   Test::Unit::TestCase:
     file: lib/Test/Unit/Lite.pm
     version: 0

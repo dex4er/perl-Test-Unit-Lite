@@ -1,12 +1,10 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 use strict;
+use warnings;
 
-use lib 't/tlib', 'tlib';
+use lib 'inc', 'lib';
 
 use Test::Unit::Lite;
 
-use Test::Unit::HarnessUnit;
-
-my $testrunner = Test::Unit::HarnessUnit->new();
-$testrunner->start("AllTests");
+Test::Unit::HarnessUnit->new->start('Test::Unit::Lite::AllTests');

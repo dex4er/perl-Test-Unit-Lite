@@ -1,4 +1,16 @@
 ------------------------------------------------------------------------
+0.06 | Piotr Roszatycki <dexter@debian.org> | 2007-10-13
+
+Changes:
+
+* Use warnings.
+* Compatibility with Kurila 1.4.
+* New test units for bad suites.
+* Test::Unit::TestRunner prints text statistics.
+* Test::Unit::HarnessUnit outputs TAP stream.
+* Do not test POD errors unless $ENV{PERL_TEST_POD} is true.
+
+------------------------------------------------------------------------
 0.05 | Piotr Roszatycki <dexter@debian.org> | 2007-10-05
 
 Changes:

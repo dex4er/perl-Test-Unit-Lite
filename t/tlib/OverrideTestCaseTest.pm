@@ -1,14 +1,12 @@
-package OneTestCase;
+package OverrideTestCaseTest;
+use strict;
 
 # Test class used in SuiteTest
 
-use base qw(Test::Unit::TestCase);
+use base qw(OneTestCaseTest);
 
 sub new {
     shift()->SUPER::new(@_);
-}
-
-sub no_test_case {
 }
 
 sub test_case {

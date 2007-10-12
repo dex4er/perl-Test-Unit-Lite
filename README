@@ -6,6 +6,10 @@ SYNOPSIS
 
       perl -MTest::Unit::Lite -e bundle
 
+    Running all test units:
+
+      perl -MTest::Unit::Lite -e all_tests
+
     Using as a replacement for Test::Unit:
 
       package FooBarTest;

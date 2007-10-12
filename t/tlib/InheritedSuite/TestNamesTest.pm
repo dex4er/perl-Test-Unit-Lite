@@ -1,4 +1,4 @@
-package InheritedSuite::TestNames;
+package InheritedSuite::TestNamesTest;
 
 # This class is probably overkill :-)
 

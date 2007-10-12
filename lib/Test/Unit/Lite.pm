@@ -2,7 +2,7 @@
 
 package Test::Unit::Lite;
 use 5.006;
-our $VERSION = 0.05;
+our $VERSION = 0.06;
 
 =head1 NAME
 
@@ -13,6 +13,10 @@ Test::Unit::Lite - Unit testing without external dependencies
 Bundling the L<Test::Unit::Lite> as a part of package distribution:
 
   perl -MTest::Unit::Lite -e bundle
+
+Running all test units:
+
+  perl -MTest::Unit::Lite -e all_tests
 
 Using as a replacement for Test::Unit:
 
@@ -66,6 +70,7 @@ source directory for the package distribution.
 
 
 use strict;
+use warnings;
 
 
 use File::Spec ();
@@ -74,9 +79,13 @@ use File::Copy ();
 use File::Path ();
 
 
-use Exporter ();
-*import = \&Exporter::import;
-our @EXPORT = qw< bundle >;
+# Compatibility with Kurila
+BEGIN { *Symbol::fetch_glob = sub ($) { no strict 'refs'; *{$_[0]} } unless defined &Symbol::fetch_glob; }
+
+
+# Can't use Exporter 'import'. Compatibility with Perl 5.6
+use Exporter (); *import = \&Exporter::import;
+our @EXPORT = qw< bundle all_tests >;
 
 
 # Copy this module to inc subdirectory of the source distribution
@@ -103,6 +112,9 @@ sub bundle {
     File::Copy::cp($srcfile, $dstfile) or die "Cannot copy $srcfile to $dstfile: $!\n";
 }
 
+sub all_tests {
+    Test::Unit::TestRunner->new->start('Test::Unit::Lite::AllTests');
+}
 
 1;
 
@@ -116,7 +128,7 @@ our @Data_Stack;
 my $DNE = bless [], 'Does::Not::Exist';
 
 sub new {
-    my $class = shift;
+    my ($class) = @_;
     $class = ref $class if ref $class;
     my $self = {};
     return bless $self => $class;
@@ -127,12 +139,12 @@ sub set_up { }
 sub tear_down { }
 
 sub list_tests {
-    my $self = shift;
+    my ($self) = @_;
 
     my $class = ref $self || $self;
 
     no strict 'refs';
-    my @tests = sort grep { /^test_/ } keys %{$class.'::'};
+    my @tests = sort grep { /^test_/ } keys %{ *{Symbol::fetch_glob($class.'::')} };
     return wantarray ? @tests : [ @tests ];
 }
 
@@ -226,7 +238,7 @@ sub assert_num_equals {
     my ($self, $arg1, $arg2, $msg) = @_;
     __croak "expected value was undef; should be using assert_null?", $msg unless defined $arg1;
     __croak "expected '$arg1', got undef", $msg unless defined $arg2;
-    local $^W;
+    no warnings;
     __croak "expected $arg1, got $arg2", $msg unless $arg1 == $arg2;
 }
 
@@ -234,7 +246,7 @@ sub assert_num_not_equals {
     my ($self, $arg1, $arg2, $msg) = @_;
     __croak "expected value was undef; should be using assert_null?", $msg unless defined $arg1;
     __croak "expected '$arg1', got undef", $msg unless defined $arg2;
-    local $^W;
+    no warnings;
     __croak "$arg1 and $arg2 should differ", $msg unless $arg1 != $arg2;
 }
 
@@ -409,6 +421,53 @@ BEGIN { $INC{'Test/Unit/TestCase.pm'} = __FILE__; }
 1;
 
 
+package Test::Unit::Result;
+use 5.006;
+our $VERSION = $Test::Unit::Lite::VERSION;
+
+sub new {
+    my ($class) = @_;
+    my $self = {
+        'messages' => [],
+        'errors'   => 0,
+        'passes'   => 0,
+    };
+
+    return bless $self => $class;
+}
+
+sub messages {
+    my ($self) = @_;
+    return $self->{messages};
+}
+
+sub errors {
+    my ($self) = @_;
+    return $self->{errors};
+}
+
+sub passes {
+    my ($self) = @_;
+    return $self->{passes};
+}
+
+sub add_error {
+    my ($self, $test, $message) = @_;
+    $self->{errors}++;
+    push @{$self->messages}, {test => $test, type => 'ERROR', message => $message};
+}
+
+sub add_pass {
+    my ($self, $test, $message) = @_;
+    $self->{passes}++;
+    push @{$self->messages}, {test => $test, type => 'PASS', message => $message};
+}
+
+BEGIN { $INC{'Test/Unit/Result.pm'} = __FILE__; }
+
+1;
+
+
 package Test::Unit::TestSuite;
 use 5.006;
 our $VERSION = $Test::Unit::Lite::VERSION;
@@ -487,10 +546,9 @@ sub count_test_cases {
 }
 
 sub run {
-    my ($self) = @_;
+    my ($self, $result) = @_;
 
-    _autoflush(\*STDOUT);
-    _autoflush(\*STDERR);
+    die "Undefined $result object" unless defined $result;
 
     foreach my $unit (@{ $self->units }) {
         $unit->set_up;
@@ -500,24 +558,15 @@ sub run {
                 $unit->$test;
             };
             if ($@ eq '') {
-                print "ok PASS $unit_test\n";
+                $result->add_pass($unit_test);
             }
             else {
-                print "\nnot ok ERROR $unit_test\n";
-                print STDERR join("\n# ", split /\n/, "# $@"), "\n";
+                $result->add_error($unit_test, "$@");
             }
         }
         $unit->tear_down;
     }
     return;
-}
-
-# Turns on autoflush for the handle passed
-sub _autoflush {
-    my ($fh) = @_;
-    my $old_fh = select $fh;
-    $| = 1;
-    select $old_fh;
 }
 
 BEGIN { $INC{'Test/Unit/TestSuite.pm'} = __FILE__; }
@@ -530,20 +579,84 @@ use 5.006;
 our $VERSION = $Test::Unit::Lite::VERSION;
 
 sub new {
-    my $class = shift;
+    my ($class, $fh_out, $fh_err) = @_;
+    $fh_out = \*STDOUT unless defined $fh_out;
+    $fh_err = \*STDERR unless defined $fh_err;
+    _autoflush($fh_out);
+    _autoflush($fh_err);
     my $self = {
-        'suite' => undef
+        'suite'  => undef,
+        'fh_out' => $fh_out,
+        'fh_err' => $fh_err,
     };
     return bless $self => $class;
 }
 
+sub fh_out {
+    my ($self) = @_;
+    return $self->{fh_out};
+}
+
+sub fh_err {
+    my ($self) = @_;
+    return $self->{fh_err};
+}
+
+sub result {
+    my ($self) = @_;
+    return $self->{result};
+}
+
+sub _autoflush {
+    my ($fh) = @_;
+    my $old_fh = select $fh;
+    $| = 1;
+    select $old_fh;
+}
+
 sub suite {
-    return $_[0]->{suite};
+    my ($self) = @_;
+    return $self->{suite};
+}
+
+sub print_header {
+}
+
+sub print_pass {
+    my ($self, $result) = @_;
+    printf { $self->fh_out } ".";
+}
+
+sub print_error {
+    my ($self, $result) = @_;
+    printf { $self->fh_out } "E";
+}
+
+sub print_footer {
+    my ($self, $result) = @_;
+    printf { $self->fh_out } "\nTests run: %d", $self->suite->count_test_cases;
+    if ($result->errors) {
+        printf { $self->fh_out } ", Errors: %d", $result->errors;
+    }
+    printf { $self->fh_out } "\n";
+    if ($result->errors) {
+        printf { $self->fh_out } "\nFAILURES!!!\n\n";
+        foreach my $message (@{ $result->messages }) {
+            if ($message->{type} eq 'ERROR') {
+                printf { $self->fh_out } '-' x 78 . "\n"
+                                       . $message->{test} . ":\n"
+                                       . "\n"
+                                       . $message->{message} . "\n";
+            }
+        } 
+        printf { $self->fh_out } '-' x 78 . "\n";
+    }
 }
 
 sub start {
-    my $self = shift;
-    my $test = shift;
+    my ($self, $test) = @_;
+
+    my $result = Test::Unit::Result->new;
 
     eval "use $test;";
     die $@ if $@;
@@ -556,12 +669,22 @@ sub start {
         $self->suite->add_test($test);
     }
     else {
-        print "# skipping unknown test $test\n";
+        die "Unknown test $test\n";
     }
 
-    print "STARTING TEST RUN\n";
-    printf "1..%d\n", $self->suite->count_test_cases;
-    $self->suite->run;
+    $self->print_header;
+    $self->suite->run($result);
+
+    foreach my $result (@{ $result->messages }) {
+        if ($result->{type} eq 'PASS') {
+            $self->print_pass($result);
+        }
+        elsif ($result->{type} eq 'ERROR') {
+            $self->print_error($result);
+        }
+    }
+
+    $self->print_footer($result);
 }
 
 BEGIN { $INC{'Test/Unit/TestRunner.pm'} = __FILE__; }
@@ -575,6 +698,26 @@ our $VERSION = $Test::Unit::Lite::VERSION;
 
 use base 'Test::Unit::TestRunner';
 
+sub print_header {
+    my ($self) = @_;
+    print { $self->fh_out } "STARTING TEST RUN\n";
+    printf { $self->fh_out } "1..%d\n", $self->suite->count_test_cases;
+}
+
+sub print_pass {
+    my ($self, $result) = @_;
+    printf { $self->fh_out } "ok %s %s\n", $result->{type}, $result->{test};
+}
+
+sub print_error {
+    my ($self, $result) = @_;
+    printf { $self->fh_out } "\nnot ok %s %s\n", $result->{type}, $result->{test};
+    print { $self->fh_err } join("\n# ", split /\n/, "# " . $result->{message}), "\n";
+}
+
+sub print_footer {
+}
+
 BEGIN { $INC{'Test/Unit/HarnessUnit.pm'} = __FILE__; }
 
 1;
@@ -585,6 +728,49 @@ use 5.006;
 our $VERSION = $Test::Unit::Lite::VERSION;
 
 BEGIN { $INC{'Test/Unit/Debug.pm'} = __FILE__; }
+
+1;
+
+
+package Test::Unit::Lite::AllTests;
+use 5.006;
+our $VERSION = $Test::Unit::Lite::VERSION;
+
+use base 'Test::Unit::TestSuite';
+
+use File::Find ();
+use File::Basename ();
+use File::Spec ();
+
+sub suite {
+    my $class = shift;
+    my $suite = Test::Unit::TestSuite->empty_new('All Tests');
+
+    my $dir = File::Spec->catdir('t', 'tlib');
+    my $depth = scalar File::Spec->splitdir($dir);
+
+    push @INC, 't/tlib';
+
+    File::Find::find({
+        wanted => sub {
+            my $path = File::Spec->canonpath($File::Find::name);
+            return unless $path =~ s/(Test)\.pm$/$1/;
+            my @path = File::Spec->splitdir($path);
+            splice @path, 0, $depth;
+            return unless scalar @path > 0;
+            my $class = join '::', @path;
+            return unless $class;
+            return if $class =~ /^Test::Unit::/;
+            return if @ARGV and $class !~ $ARGV[0];
+            $suite->add_test($class);
+        },
+        no_chdir => 1,
+    }, $dir || '.');
+
+    return $suite;
+}
+
+BEGIN { $INC{'Test/Unit/Lite/AllTests.pm'} = __FILE__; }
 
 1;
 
@@ -602,6 +788,11 @@ __END__
 Copies L<Test::Unit::Lite> modules into F<inc> directory.  Creates missing
 subdirectories if needed.  Silently overwrites previous module if was
 existing.
+
+=item all_tests
+
+Creates new test runner for L<Test::Unit::Lite::AllTests> suite which searches
+for test units in F<t/tlib> directory.
 
 =back
 
@@ -728,18 +919,42 @@ Runs the test suite and output the results as TAP report.
 
 =head2 L<Test::Unit::TestRunner>
 
-This is the test runner which outputs in the same format that
-L<Test::Harness> expects.
+This is the test runner which outputs text report about finished test suite.
 
 =over
 
-=item new
+=item new([$fh_out [, $fh_err]])
 
-The constructor for whole test framework.
+The constructor for whole test framework.  Its optional parameters are
+filehandles for standard output and error messages.
+
+=item fh_out
+
+Contains the filehandle for standard output.
+
+=item fh_err
+
+Contains the filehandle for error messages.
 
 =item suite
 
 Contains the test suite object.
+
+=item print_header
+
+Called before running test suite.
+
+=item print_error
+
+Called after test unit is failed.
+
+=item print_pass
+
+Called after test unit is passed.
+
+=item print_footer
+
+Called after running test suite.
 
 =item start(TEST_SUITE)
 
@@ -747,15 +962,69 @@ Starts the test suite.
 
 =back
 
+=head2 L<Test::Unit::Result>
+
+This object contains the results of test suite.
+
+=over
+
+=item new
+
+Creates a new object.
+
+=item messages
+
+Contains the array of result messages.  The single message is a hash which
+contains:
+
+=over
+
+=item test
+
+the test unit name,
+
+=item type
+
+the type of message (PASS or ERROR),
+
+=item message
+
+the text of message.
+
+=back
+
+=item errors
+
+Contains the number of collected errors.
+
+=item passes
+
+Contains the number of collected passes.
+
+=item add_error(TEST, MESSAGE)
+
+Adds an error to the report.
+
+=item add_pass(TEST, MESSAGE)
+
+Adds a pass to the report.
+
+=back
+
 =head2 L<Test::Unit::HarnessUnit>
 
-In fact it is an empty class which inherits all methods on
-L<Test::Unit::TestRunner> class.
+This is the test runner which outputs in the same format that
+L<Test::Harness> expects (Test Anything Protocol).  It is derived
+from L<Test::Unit::TestRunner>.
 
 =head2 L<Test::Unit::Debug>
 
 The empty class which is provided for compatibility with original
 L<Test::Unit> framework.
+
+=head2 L<Test::Unit::Lite::AllTests>
+
+The test suite which searches for test units in F<t/tlib> directory.
 
 =head1 COMPATIBILITY
 
@@ -798,80 +1067,46 @@ This is the simple unit test module.
 
   1;
 
-=head2 t/tlib/AllTests.pm
-
-This is the test suite which calls all test cases located in F<t/tlib>
-directory.
-
-  package AllTests;
-
-  use base 'Test::Unit::TestSuite';
-
-  use File::Find ();
-  use File::Basename ();
-  use File::Spec ();
-
-  sub new {
-      return bless {}, shift;
-  }
-
-  sub suite {
-      my $class = shift;
-      my $suite = Test::Unit::TestSuite->empty_new("Framework Tests");
-
-      my $dir = (File::Basename::dirname(__FILE__));
-      my $depth = scalar File::Spec->splitdir($dir);
-
-      File::Find::find({
-          wanted => sub {
-              my $path = File::Spec->canonpath($File::Find::name);
-              return unless $path =~ s/\.pm$//;
-              my @path = File::Spec->splitdir($path);
-              splice @path, 0, $depth;
-              return unless scalar @path > 0;
-              my $class = join '::', @path;
-              return unless $class;
-              return if $class =~ /^Test::Unit::/;
-              return if @ARGV and $class !~ $ARGV[0];
-              return unless eval "use $class; $class->isa('Test::Unit::TestCase');";
-              $suite->add_test($class);
-          },
-          no_chdir => 1,
-      }, $dir || '.');
-
-      return $suite;
-  }
-
-  1;
-
 =head2 t/all_tests.t
 
 This is the test script for L<Test::Harness> called with "make test".
 
-  #!/usr/bin/perl -w
-
+  #!/usr/bin/perl
+  
   use strict;
-  use lib 'inc', 't/tlib', 'tlib';  # inc is needed for bundled T::U::L
+  use warnings;
+  
+  use lib 'inc', 'lib';
+  
+  use Test::Unit::Lite;
+  
+  Test::Unit::HarnessUnit->new->start('Test::Unit::Lite::AllTests');
 
-  use Test::Unit::Lite;  # load the Test::Unit replacement
-  use Test::Unit::HarnessUnit;
+=head2 t/test.pl
 
-  my $testrunner = Test::Unit::HarnessUnit->new();
-  $testrunner->start("AllTests");
+This is the optional script for calling test suite directly.
 
-=head2 t/test.sh
+  #!/usr/bin/perl
+  
+  use strict;
+  use warnings;
+  
+  use File::Basename ();
+  
+  BEGIN {
+      chdir File::Basename::dirname(__FILE__) or die "$!";
+      chdir '..' or die "$!";
+  }
+  
+  use lib 'inc', 'lib';
+  
+  use Test::Unit::Lite;
+  
+  all_tests;
 
-This is the optional shell script for calling test suite directly.
+This is perl equivalent of shell command line:
 
-  #!/bin/sh
-  set -e
-  cd `dirname $0`
-  cd ..
-  PERL=${PERL:-perl}
-  find t/tlib -name '*.pm' -print | while read pm; do
-      $PERL -Iinc -Ilib -It/tlib -MTest::Unit::Lite -c "$pm"
-  done
-  $PERL -w -Iinc -Ilib -It/tlib t/all_tests.t "$@"
+  perl -Iinc -Ilib -MTest::Unit::Lite -w -e all_tests
 
 =head1 SEE ALSO
 
