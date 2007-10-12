@@ -23,7 +23,6 @@ sub check_failures {
         if ($exception ne '' and $exception =~ /^.*:(\d+) - (?:.*\n)?(.*)\n/s) {
             my ($line, $message) = ($1, $2);
 
-#warn "<<$message>><<$expected>>";
             if ($line != $test_code_line or 
                    (ref $expected eq 'Regexp' and $message !~ /$expected/ or
                     ref $expected ne 'Regexp' and $message ne $expected))

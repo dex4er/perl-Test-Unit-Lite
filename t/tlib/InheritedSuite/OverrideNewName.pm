@@ -7,7 +7,7 @@ use base qw(Test::Unit::TestSuite);
 sub new {
   my $class = shift;
   my $self = $class->SUPER::empty_new();
-  $self->add_test(Test::Unit::TestSuite->new('Success'));
+  $self->add_test(Test::Unit::TestSuite->new('SuccessTest'));
   return $self;
 }
 

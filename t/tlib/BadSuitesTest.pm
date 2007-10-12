@@ -2,6 +2,17 @@ package BadSuitesTest;
 
 use strict;
 
+package BadSuitesTest::Null::Tie;
+
+sub TIEHANDLE {
+    bless {}, shift;
+}
+
+sub PRINT {
+}
+
+package BadSuitesTest;
+
 use base 'Test::Unit::TestCase';
 
 use Test::Unit::Lite;
@@ -11,20 +22,24 @@ use Test::Unit::TestRunner;
 
 sub test_suite_with_syntax_error {
     my $self = shift;
-    my $runner = Test::Unit::TestRunner->new();
+    select select my $fh_null;
+    tie *$fh_null, 'BadSuitesTest::Null::Tie';
+    my $runner = Test::Unit::TestRunner->new($fh_null, $fh_null);
     eval {
         $runner->start('BadSuite::SyntaxError');
     };
-#    $self->assert(qr!^syntax error at .*/SyntaxError\.pm!, "$@");
+    $self->assert(qr/(Unknown test|Compilation failed)/, "$@");
 }
 
 sub test_suite_with_bad_use {
     my $self = shift;
-    my $runner = Test::Unit::TestRunner->new();
+    select select my $fh_null;
+    tie *$fh_null, 'BadSuitesTest::Null::Tie';
+    my $runner = Test::Unit::TestRunner->new($fh_null, $fh_null);
     eval {
         $runner->start('BadSuite::BadUse');
     };
-#    $self->assert(qr!^Can't locate TestSuite/NonExistent\.pm in \@INC!, "$@");
+    $self->assert(qr/(Unknown test|Can\'t locate)/, "$@");
 }
 
 1;
