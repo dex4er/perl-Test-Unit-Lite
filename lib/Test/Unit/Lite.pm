@@ -2,7 +2,7 @@
 
 package Test::Unit::Lite;
 use 5.006;
-our $VERSION = 0.06;
+our $VERSION = 0.06_01;
 
 =head1 NAME
 
@@ -80,7 +80,7 @@ use File::Path ();
 
 
 # Compatibility with Kurila
-BEGIN { *Symbol::fetch_glob = sub ($) { no strict 'refs'; *{$_[0]} } unless defined &Symbol::fetch_glob; }
+BEGIN { *Symbol::stash = sub ($) { no strict 'refs'; \%{ *{$_[0].'::'} } } unless defined &Symbol::stash; }
 
 
 # Can't use Exporter 'import'. Compatibility with Perl 5.6
@@ -144,7 +144,7 @@ sub list_tests {
     my $class = ref $self || $self;
 
     no strict 'refs';
-    my @tests = sort grep { /^test_/ } keys %{ *{Symbol::fetch_glob($class.'::')} };
+    my @tests = sort grep { /^test_/ } keys %{ Symbol::stash($class) };
     return wantarray ? @tests : [ @tests ];
 }
 
@@ -529,6 +529,7 @@ sub add_test {
     if (not ref $unit) {
         eval "use $unit;";
         die $@ if $@;
+        return unless $unit->isa('Test::Unit::TestCase');
     }
 
     return push @{ $self->{units} }, ref $unit ? $unit : $unit->new;
