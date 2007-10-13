@@ -4,6 +4,7 @@
 Fixes:
 
 * Replace Symbol::fetch_glob with Symbol::stash for Kurila compatibility.
+* Ignore modules which are not based on Test::Unit::TestCase.
 
 ------------------------------------------------------------------------
 0.06 | Piotr Roszatycki <dexter@debian.org> | 2007-10-13

@@ -529,6 +529,7 @@ sub add_test {
     if (not ref $unit) {
         eval "use $unit;";
         die $@ if $@;
+        return unless $unit->isa('Test::Unit::TestCase');
     }
 
     return push @{ $self->{units} }, ref $unit ? $unit : $unit->new;
