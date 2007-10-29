@@ -1,6 +1,7 @@
 package TestObject;
 
 use strict;
+use warnings;
 
 sub new {
     my $class = shift;

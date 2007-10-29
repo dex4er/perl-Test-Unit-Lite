@@ -1075,6 +1075,8 @@ This is the test script for L<Test::Harness> called with "make test".
   
   use Test::Unit::Lite;
   
+  local $SIG{__WARN__} = sub { require Carp; Carp::confess "Warning: $_[0]" };
+  
   Test::Unit::HarnessUnit->new->start('Test::Unit::Lite::AllTests');
 
 =head2 t/test.pl
@@ -1096,6 +1098,8 @@ This is the optional script for calling test suite directly.
   use lib 'inc', 'lib';
   
   use Test::Unit::Lite;
+  
+  local $SIG{__WARN__} = sub { require Carp; Carp::confess "Warning: $_[0]" };
   
   all_tests;
 

@@ -1,6 +1,7 @@
 package InheritedSuite::OverrideNewName;
 
 use strict;
+use warnings;
 
 use base qw(Test::Unit::TestSuite);
 

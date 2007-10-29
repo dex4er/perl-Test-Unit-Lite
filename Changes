@@ -1,13 +1,14 @@
 ------------------------------------------------------------------------
-0.07 | Piotr Roszatycki <dexter@debian.org> | 2007-10-22
+0.07 | Piotr Roszatycki <dexter@debian.org> | 2007-10-29
 
 Changes:
 
 * Report is printed immediately (non-buffered output): Runner object is
   passed to Suite object for run method.
+* Warnings are fatal for own test units.
 
 ------------------------------------------------------------------------
-0.06_01 | Piotr Roszatycki <dexter@debian.org> | 2007-10-13
+0.0601 | Piotr Roszatycki <dexter@debian.org> | 2007-10-13
 
 Fixes:
 
@@ -38,7 +39,7 @@ Fixes:
 * Reformat whitespaces in source code.
 
 ------------------------------------------------------------------------
-0.04_02 | Piotr Roszatycki <dexter@debian.org> | 2007-09-27
+0.0402 | Piotr Roszatycki <dexter@debian.org> | 2007-09-27
 
 Fixes:
 
@@ -46,7 +47,7 @@ Fixes:
   on several Perl versions.
 
 ------------------------------------------------------------------------
-0.04_01 | Piotr Roszatycki <dexter@debian.org> | 2007-09-23
+0.0401 | Piotr Roszatycki <dexter@debian.org> | 2007-09-23
 
 Fixes:
 

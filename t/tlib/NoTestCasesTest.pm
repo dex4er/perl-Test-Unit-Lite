@@ -1,5 +1,6 @@
 package NoTestCasesTest;
 use strict;
+use warnings;
 
 use base qw(Test::Unit::TestCase);
 
