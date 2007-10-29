@@ -1,5 +1,6 @@
 package NoTestCaseClassTest;
 use strict;
+use warnings;
 
 sub new {
 }

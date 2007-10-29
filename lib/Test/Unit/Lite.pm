@@ -2,7 +2,7 @@
 
 package Test::Unit::Lite;
 use 5.006;
-our $VERSION = 0.06_01;
+our $VERSION = 0.07;
 
 =head1 NAME
 
@@ -452,15 +452,19 @@ sub passes {
 }
 
 sub add_error {
-    my ($self, $test, $message) = @_;
+    my ($self, $test, $message, $runner) = @_;
     $self->{errors}++;
-    push @{$self->messages}, {test => $test, type => 'ERROR', message => $message};
+    my $result = {test => $test, type => 'ERROR', message => $message};
+    push @{$self->messages}, $result;
+    $runner->print_error($result) if defined $runner;
 }
 
 sub add_pass {
-    my ($self, $test, $message) = @_;
+    my ($self, $test, $message, $runner) = @_;
     $self->{passes}++;
-    push @{$self->messages}, {test => $test, type => 'PASS', message => $message};
+    my $result = {test => $test, type => 'PASS', message => $message};
+    push @{$self->messages}, $result;
+    $runner->print_pass($result) if defined $runner;
 }
 
 BEGIN { $INC{'Test/Unit/Result.pm'} = __FILE__; }
@@ -547,9 +551,9 @@ sub count_test_cases {
 }
 
 sub run {
-    my ($self, $result) = @_;
+    my ($self, $result, $runner) = @_;
 
-    die "Undefined $result object" unless defined $result;
+    die "Undefined result object" unless defined $result;
 
     foreach my $unit (@{ $self->units }) {
         $unit->set_up;
@@ -559,10 +563,10 @@ sub run {
                 $unit->$test;
             };
             if ($@ eq '') {
-                $result->add_pass($unit_test);
+                $result->add_pass($unit_test, q{}, $runner);
             }
             else {
-                $result->add_error($unit_test, "$@");
+                $result->add_error($unit_test, "$@", $runner);
             }
         }
         $unit->tear_down;
@@ -649,7 +653,7 @@ sub print_footer {
                                        . "\n"
                                        . $message->{message} . "\n";
             }
-        } 
+        }
         printf { $self->fh_out } '-' x 78 . "\n";
     }
 }
@@ -674,17 +678,7 @@ sub start {
     }
 
     $self->print_header;
-    $self->suite->run($result);
-
-    foreach my $result (@{ $result->messages }) {
-        if ($result->{type} eq 'PASS') {
-            $self->print_pass($result);
-        }
-        elsif ($result->{type} eq 'ERROR') {
-            $self->print_error($result);
-        }
-    }
-
+    $self->suite->run($result, $self);
     $self->print_footer($result);
 }
 
@@ -1081,6 +1075,8 @@ This is the test script for L<Test::Harness> called with "make test".
   
   use Test::Unit::Lite;
   
+  local $SIG{__WARN__} = sub { require Carp; Carp::confess "Warning: $_[0]" };
+  
   Test::Unit::HarnessUnit->new->start('Test::Unit::Lite::AllTests');
 
 =head2 t/test.pl
@@ -1102,6 +1098,8 @@ This is the optional script for calling test suite directly.
   use lib 'inc', 'lib';
   
   use Test::Unit::Lite;
+  
+  local $SIG{__WARN__} = sub { require Carp; Carp::confess "Warning: $_[0]" };
   
   all_tests;
 

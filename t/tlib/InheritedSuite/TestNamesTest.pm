@@ -3,6 +3,7 @@ package InheritedSuite::TestNamesTest;
 # This class is probably overkill :-)
 
 use strict;
+use warnings;
 
 use base 'Test::Unit::TestCase';
 

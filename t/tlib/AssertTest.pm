@@ -1,6 +1,7 @@
 package AssertTest;
 
 use strict;
+use warnings;
 
 use base 'Test::Unit::TestCase', 'ExceptionChecker';
 
@@ -297,6 +298,7 @@ sub test_assert_deep_equals {
 	my $old_isa = \&UNIVERSAL::isa;
 	# Pick on isa() because it'll be called from any deep-ing code
 	local $^W = 0;
+	no warnings 'redefine';
 	local *UNIVERSAL::isa = sub {
 	    die "Giving up on deep recursion for assert_deep_equals"
 	      if defined caller(500);

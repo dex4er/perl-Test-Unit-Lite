@@ -1,6 +1,7 @@
 package BadSuitesTest;
 
 use strict;
+use warnings;
 
 package BadSuitesTest::Null::Tie;
 

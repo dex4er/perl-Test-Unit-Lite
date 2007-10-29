@@ -1,5 +1,6 @@
 package OverrideTestCaseTest;
 use strict;
+use warnings;
 
 # Test class used in SuiteTest
 
