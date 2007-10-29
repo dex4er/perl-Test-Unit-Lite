@@ -1,8 +1,14 @@
 ------------------------------------------------------------------------
 0.070001 | Piotr Roszatycki <dexter@debian.org> | 2007-10-29
 
+Fixes:
+
+* Check if expected value is defined for assert_matches and
+  assert_not_matches.
+
 Changes:
 
+* Fix t/* scripts for kurila.
 * Updated POD documentation.
 
 ------------------------------------------------------------------------
