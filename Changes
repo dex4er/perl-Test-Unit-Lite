@@ -1,4 +1,17 @@
 ------------------------------------------------------------------------
+0.0701 | Piotr Roszatycki <dexter@debian.org> | 2007-10-30
+
+Fixes:
+
+* Check if expected value is defined for assert_matches and
+  assert_not_matches.
+* Fix test scripts after cpan-testers report.
+
+Changes:
+
+* Updated POD documentation.
+
+------------------------------------------------------------------------
 0.07 | Piotr Roszatycki <dexter@debian.org> | 2007-10-29
 
 Changes:

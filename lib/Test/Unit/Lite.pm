@@ -2,7 +2,7 @@
 
 package Test::Unit::Lite;
 use 5.006;
-our $VERSION = 0.07;
+our $VERSION = 0.07_01;
 
 =head1 NAME
 
@@ -267,12 +267,14 @@ sub assert_str_not_equals {
 sub assert_matches {
     my ($self, $arg1, $arg2, $msg) = @_;
     __croak "arg 1 to assert_matches() must be a regexp", $msg unless ref $arg1 eq 'Regexp';
+    __croak "expected '$arg1', got undef", $msg unless defined $arg2;
     __croak "$arg2 didn't match /$arg1/", $msg unless $arg2 =~ $arg1;
 }
 
 sub assert_does_not_match {
     my ($self, $arg1, $arg2, $msg) = @_;
     __croak "arg 1 to assert_does_not_match() must be a regexp", $msg unless ref $arg1 eq 'Regexp';
+    __croak "expected '$arg1', got undef", $msg unless defined $arg2;
     __croak "$arg2 matched /$arg1/", $msg unless $arg2 !~ $arg1;
 }
 
@@ -1129,7 +1131,7 @@ Piotr Roszatycki E<lt>dexter@debian.orgE<gt>
 
 =head1 LICENSE
 
-Copyright 2007 by Piotr Roszatycki E<lt>dexter@debian.orgE<gt>.
+Copyright (C) 2007 by Piotr Roszatycki E<lt>dexter@debian.orgE<gt>.
 
 This program is free software; you can redistribute it and/or modify it under
 the same terms as Perl itself.
