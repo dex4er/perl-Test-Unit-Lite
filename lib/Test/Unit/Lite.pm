@@ -2,7 +2,7 @@
 
 package Test::Unit::Lite;
 use 5.006;
-our $VERSION = 0.07_00_01;
+our $VERSION = 0.07_01;
 
 =head1 NAME
 
