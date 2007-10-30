@@ -266,15 +266,15 @@ sub assert_str_not_equals {
 
 sub assert_matches {
     my ($self, $arg1, $arg2, $msg) = @_;
-    __croak "expected value was undef; should be using assert_null?", $msg unless defined $arg1;
     __croak "arg 1 to assert_matches() must be a regexp", $msg unless ref $arg1 eq 'Regexp';
+    __croak "expected '$arg1', got undef", $msg unless defined $arg2;
     __croak "$arg2 didn't match /$arg1/", $msg unless $arg2 =~ $arg1;
 }
 
 sub assert_does_not_match {
     my ($self, $arg1, $arg2, $msg) = @_;
-    __croak "expected value was undef; should be using assert_null?", $msg unless defined $arg1;
     __croak "arg 1 to assert_does_not_match() must be a regexp", $msg unless ref $arg1 eq 'Regexp';
+    __croak "expected '$arg1', got undef", $msg unless defined $arg2;
     __croak "$arg2 matched /$arg1/", $msg unless $arg2 !~ $arg1;
 }
 
