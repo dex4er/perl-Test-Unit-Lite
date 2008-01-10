@@ -24,6 +24,7 @@ t/tlib/NoTestCaseClassTest.pm
 t/tlib/NoTestCasesTest.pm
 t/tlib/OneTestCaseTest.pm
 t/tlib/OverrideTestCaseTest.pm
+t/tlib/SetUpTearDownTest.pm
 t/tlib/SuccessTest.pm
 t/tlib/TestObject.pm
 t/tlib/WillDie.pm

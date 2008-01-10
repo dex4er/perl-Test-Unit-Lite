@@ -2,7 +2,7 @@
 
 package Test::Unit::Lite;
 use 5.006;
-our $VERSION = 0.07_01;
+our $VERSION = 0.08;
 
 =head1 NAME
 
@@ -558,9 +558,9 @@ sub run {
     die "Undefined result object" unless defined $result;
 
     foreach my $unit (@{ $self->units }) {
-        $unit->set_up;
         foreach my $test (@{ $unit->list_tests }) {
             my $unit_test = (ref $unit ? ref $unit : $unit) . '::' . $test;
+    	    $unit->set_up;
             eval {
                 $unit->$test;
             };
@@ -570,8 +570,8 @@ sub run {
             else {
                 $result->add_error($unit_test, "$@", $runner);
             }
+    	    $unit->tear_down;
         }
-        $unit->tear_down;
     }
     return;
 }
@@ -811,13 +811,13 @@ The default constructor which just bless an empty anonymous hash reference.
 
 =item set_up
 
-This method is called at the start of test unit processing.  It is empty
+This method is called at the start of each test unit processing.  It is empty
 method and can be overrided in derived class.
 
 =item tear_down
 
-This method is called at the end of test unit processing.  It is empty method
-and can be overrided in derived class.
+This method is called at the end of each test unit processing.  It is empty
+method and can be overrided in derived class.
 
 =item list_tests
 
