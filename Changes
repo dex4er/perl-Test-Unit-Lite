@@ -1,4 +1,18 @@
 ------------------------------------------------------------------------
+0.09 | Piotr Roszatycki <dexter@debian.org> | 2008-02-05
+
+Fixes:
+
+* Fix Windows compatibility problem in Test::Unit::TestSuite::suite.
+  RT #32936.
+* Fix inconsistent type for $self->{units} in Test::Unit::TestSuite::new.
+  RT #32934, #32935.
+
+Changes:
+
+* Support for tainted mode.
+
+------------------------------------------------------------------------
 0.08 | Piotr Roszatycki <dexter@debian.org> | 2008-01-10
 
 Changes:
