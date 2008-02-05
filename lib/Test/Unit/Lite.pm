@@ -2,7 +2,7 @@
 
 package Test::Unit::Lite;
 use 5.006;
-our $VERSION = 0.08;
+our $VERSION = 0.09;
 
 =head1 NAME
 
@@ -497,6 +497,9 @@ sub new {
     };
 
     if (defined $test and not ref $test) {
+	# untaint $test
+	$test =~ /([A-Za-z0-9:-]*)/;
+	$test = $1;
         eval "use $test;";
         die $@ if $@;
     }
@@ -533,6 +536,9 @@ sub add_test {
     my ($self, $unit) = @_;
 
     if (not ref $unit) {
+	# untaint $unit
+	$unit =~ /([A-Za-z0-9:-]*)/;
+	$unit = $1;
         eval "use $unit;";
         die $@ if $@;
         return unless $unit->isa('Test::Unit::TestCase');
@@ -665,6 +671,9 @@ sub start {
 
     my $result = Test::Unit::Result->new;
 
+    # untaint $test
+    $test =~ /([A-Za-z0-9:-]*)/;
+    $test = $1;
     eval "use $test;";
     die $@ if $@;
 

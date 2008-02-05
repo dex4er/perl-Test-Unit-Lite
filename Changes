@@ -1,4 +1,11 @@
 ------------------------------------------------------------------------
+0.09 | Piotr Roszatycki <dexter@debian.org> | 2008-02-05
+
+Changes:
+
+* Support for tainted mode.
+
+------------------------------------------------------------------------
 0.08 | Piotr Roszatycki <dexter@debian.org> | 2008-01-10
 
 Changes:
