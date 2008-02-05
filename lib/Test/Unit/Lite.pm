@@ -514,7 +514,7 @@ sub new {
     }
     elsif (defined $test and $test->isa('Test::Unit::TestCase')) {
         $class = ref $test ? ref $test : $test;
-        $self->{units} = [ $test->list_tests ];
+        $self->{units} = [ $test ];
     }
     else {
         require Carp;
@@ -744,6 +744,7 @@ our $VERSION = $Test::Unit::Lite::VERSION;
 
 use base 'Test::Unit::TestSuite';
 
+use Cwd ();
 use File::Find ();
 use File::Basename ();
 use File::Spec ();
@@ -752,10 +753,11 @@ sub suite {
     my $class = shift;
     my $suite = Test::Unit::TestSuite->empty_new('All Tests');
 
-    my $dir = File::Spec->catdir('t', 'tlib');
+    my $cwd = ${^TAINT} ? do { local $_=Cwd::getcwd; /(.*)/; $1 } : '.';
+    my $dir = File::Spec->catdir($cwd, 't', 'tlib');
     my $depth = scalar File::Spec->splitdir($dir);
 
-    push @INC, 't/tlib';
+    push @INC, $dir;
 
     File::Find::find({
         wanted => sub {
