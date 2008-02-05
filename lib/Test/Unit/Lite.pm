@@ -2,7 +2,7 @@
 
 package Test::Unit::Lite;
 use 5.006;
-our $VERSION = 0.09;
+our $VERSION = 0.09_01;
 
 =head1 NAME
 
@@ -1097,9 +1097,7 @@ This is the test script for L<Test::Harness> called with "make test".
   
   use Test::Unit::Lite;
   
-  use Exception::Base 'Exception::Warning';
-  
-  local $SIG{__WARN__} = sub { $@ = $_[0]; Exception::Warning->throw(message => 'Warning', ignore_level => 1) };
+  local $SIG{__WARN__} = sub { require Carp; Carp::confess("Warning: $_[0]") };
   
   Test::Unit::HarnessUnit->new->start('Test::Unit::Lite::AllTests');
 
@@ -1129,9 +1127,7 @@ This is the optional script for calling test suite directly.
   
   use Test::Unit::Lite;
   
-  use Exception::Base 'Exception::Warning';
-  
-  local $SIG{__WARN__} = sub { $@ = $_[0]; Exception::Warning->throw(message => 'Warning', ignore_level => 1) };
+  local $SIG{__WARN__} = sub { require Carp; Carp::confess("Warning: $_[0]") };
   
   all_tests;
 
