@@ -1,4 +1,11 @@
 ------------------------------------------------------------------------
+0.0901 | Piotr Roszatycki <dexter@debian.org> | 2008-02-05
+
+Fixes:
+
+* Drop accidental dependency on Exception::Base.
+
+------------------------------------------------------------------------
 0.09 | Piotr Roszatycki <dexter@debian.org> | 2008-02-05
 
 Fixes:
