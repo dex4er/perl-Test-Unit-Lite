@@ -6,7 +6,7 @@ Fixes:
 * Fix Windows compatibility problem in Test::Unit::TestSuite::suite.
   RT #32936.
 * Fix inconsistent type for $self->{units} in Test::Unit::TestSuite::new.
-  RT #32935.
+  RT #32934, #32935.
 
 Changes:
 
