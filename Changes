@@ -1,4 +1,11 @@
 ------------------------------------------------------------------------
+0.0903 | Piotr Roszatycki <dexter@debian.org> | 2008-04-12
+
+Fixes:
+
+* Rebuild README with Pod::Readme.
+
+------------------------------------------------------------------------
 0.0902 | Piotr Roszatycki <dexter@debian.org> | 2008-04-12
 
 Fixes:
