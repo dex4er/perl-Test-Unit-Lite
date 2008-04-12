@@ -2,7 +2,7 @@
 
 package Test::Unit::Lite;
 use 5.006;
-our $VERSION = 0.09_01;
+our $VERSION = 0.09_02;
 
 =head1 NAME
 
@@ -79,7 +79,7 @@ use File::Copy ();
 use File::Path ();
 
 
-# Compatibility with Kurila
+# Safe operations on symbol stash
 BEGIN { *Symbol::stash = sub ($) { no strict 'refs'; \%{ *{$_[0].'::'} } } unless defined &Symbol::stash; }
 
 
@@ -116,7 +116,6 @@ sub all_tests {
     Test::Unit::TestRunner->new->start('Test::Unit::Lite::AllTests');
 }
 
-1;
 
 
 package Test::Unit::TestCase;
@@ -420,7 +419,6 @@ sub _format_stack {
 
 BEGIN { $INC{'Test/Unit/TestCase.pm'} = __FILE__; }
 
-1;
 
 
 package Test::Unit::Result;
@@ -471,7 +469,6 @@ sub add_pass {
 
 BEGIN { $INC{'Test/Unit/Result.pm'} = __FILE__; }
 
-1;
 
 
 package Test::Unit::TestSuite;
@@ -584,7 +581,6 @@ sub run {
 
 BEGIN { $INC{'Test/Unit/TestSuite.pm'} = __FILE__; }
 
-1;
 
 
 package Test::Unit::TestRunner;
@@ -695,7 +691,6 @@ sub start {
 
 BEGIN { $INC{'Test/Unit/TestRunner.pm'} = __FILE__; }
 
-1;
 
 
 package Test::Unit::HarnessUnit;
@@ -726,7 +721,6 @@ sub print_footer {
 
 BEGIN { $INC{'Test/Unit/HarnessUnit.pm'} = __FILE__; }
 
-1;
 
 
 package Test::Unit::Debug;
@@ -735,7 +729,6 @@ our $VERSION = $Test::Unit::Lite::VERSION;
 
 BEGIN { $INC{'Test/Unit/Debug.pm'} = __FILE__; }
 
-1;
 
 
 package Test::Unit::Lite::AllTests;
@@ -779,6 +772,10 @@ sub suite {
 }
 
 BEGIN { $INC{'Test/Unit/Lite/AllTests.pm'} = __FILE__; }
+
+
+
+package Test::Unit::Lite;
 
 1;
 
