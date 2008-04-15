@@ -11,7 +11,7 @@ BEGIN {
     chdir dirname(__FILE__) or die "$!";
     chdir '..' or die "$!";
 
-    unshift @INC, map { /(.*)/; $1 } split(/:/, $ENV{PERL5LIB}) if ${^TAINT};
+    unshift @INC, map { /(.*)/; $1 } split(/:/, $ENV{PERL5LIB}) if defined $ENV{PERL5LIB} and ${^TAINT};
 
     my $cwd = ${^TAINT} ? do { local $_=getcwd; /(.*)/; $1 } : '.';
     unshift @INC, File::Spec->catdir($cwd, 'inc');

@@ -1,4 +1,11 @@
 ------------------------------------------------------------------------
+0.0904 | Piotr Roszatycki <dexter@debian.org> | 2008-04-15
+
+Fixes:
+
+* Be more paranoid in taint mode.
+
+------------------------------------------------------------------------
 0.0903 | Piotr Roszatycki <dexter@debian.org> | 2008-04-12
 
 Fixes:

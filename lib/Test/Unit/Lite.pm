@@ -2,7 +2,7 @@
 
 package Test::Unit::Lite;
 use 5.006;
-our $VERSION = 0.09_03;
+our $VERSION = 0.09_04;
 
 =head1 NAME
 
@@ -1085,7 +1085,7 @@ This is the test script for L<Test::Harness> called with "make test".
   use Cwd;
   
   BEGIN {
-      unshift @INC, map { /(.*)/; $1 } split(/:/, $ENV{PERL5LIB}) if ${^TAINT};
+      unshift @INC, map { /(.*)/; $1 } split(/:/, $ENV{PERL5LIB}) if defined $ENV{PERL5LIB} and ${^TAINT};
   
       my $cwd = ${^TAINT} ? do { local $_=getcwd; /(.*)/; $1 } : '.';
       unshift @INC, File::Spec->catdir($cwd, 'inc');
@@ -1115,7 +1115,7 @@ This is the optional script for calling test suite directly.
       chdir dirname(__FILE__) or die "$!";
       chdir '..' or die "$!";
   
-      unshift @INC, map { /(.*)/; $1 } split(/:/, $ENV{PERL5LIB}) if ${^TAINT};
+      unshift @INC, map { /(.*)/; $1 } split(/:/, $ENV{PERL5LIB}) if defined $ENV{PERL5LIB} and ${^TAINT};
   
       my $cwd = ${^TAINT} ? do { local $_=getcwd; /(.*)/; $1 } : '.';
       unshift @INC, File::Spec->catdir($cwd, 'inc');
