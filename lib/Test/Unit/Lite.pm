@@ -2,7 +2,7 @@
 
 package Test::Unit::Lite;
 use 5.006;
-our $VERSION = 0.09_03;
+our $VERSION = 0.09_04;
 
 =head1 NAME
 
@@ -119,7 +119,6 @@ sub all_tests {
 
 
 package Test::Unit::TestCase;
-use 5.006;
 our $VERSION = $Test::Unit::Lite::VERSION;
 
 our %Seen_Refs = ();
@@ -422,7 +421,6 @@ BEGIN { $INC{'Test/Unit/TestCase.pm'} = __FILE__; }
 
 
 package Test::Unit::Result;
-use 5.006;
 our $VERSION = $Test::Unit::Lite::VERSION;
 
 sub new {
@@ -472,7 +470,6 @@ BEGIN { $INC{'Test/Unit/Result.pm'} = __FILE__; }
 
 
 package Test::Unit::TestSuite;
-use 5.006;
 our $VERSION = $Test::Unit::Lite::VERSION;
 
 sub empty_new {
@@ -584,7 +581,6 @@ BEGIN { $INC{'Test/Unit/TestSuite.pm'} = __FILE__; }
 
 
 package Test::Unit::TestRunner;
-use 5.006;
 our $VERSION = $Test::Unit::Lite::VERSION;
 
 sub new {
@@ -694,7 +690,6 @@ BEGIN { $INC{'Test/Unit/TestRunner.pm'} = __FILE__; }
 
 
 package Test::Unit::HarnessUnit;
-use 5.006;
 our $VERSION = $Test::Unit::Lite::VERSION;
 
 use base 'Test::Unit::TestRunner';
@@ -724,7 +719,6 @@ BEGIN { $INC{'Test/Unit/HarnessUnit.pm'} = __FILE__; }
 
 
 package Test::Unit::Debug;
-use 5.006;
 our $VERSION = $Test::Unit::Lite::VERSION;
 
 BEGIN { $INC{'Test/Unit/Debug.pm'} = __FILE__; }
@@ -732,7 +726,6 @@ BEGIN { $INC{'Test/Unit/Debug.pm'} = __FILE__; }
 
 
 package Test::Unit::Lite::AllTests;
-use 5.006;
 our $VERSION = $Test::Unit::Lite::VERSION;
 
 use base 'Test::Unit::TestSuite';
@@ -1085,7 +1078,7 @@ This is the test script for L<Test::Harness> called with "make test".
   use Cwd;
   
   BEGIN {
-      unshift @INC, map { /(.*)/; $1 } split(/:/, $ENV{PERL5LIB}) if ${^TAINT};
+      unshift @INC, map { /(.*)/; $1 } split(/:/, $ENV{PERL5LIB}) if defined $ENV{PERL5LIB} and ${^TAINT};
   
       my $cwd = ${^TAINT} ? do { local $_=getcwd; /(.*)/; $1 } : '.';
       unshift @INC, File::Spec->catdir($cwd, 'inc');
@@ -1115,7 +1108,7 @@ This is the optional script for calling test suite directly.
       chdir dirname(__FILE__) or die "$!";
       chdir '..' or die "$!";
   
-      unshift @INC, map { /(.*)/; $1 } split(/:/, $ENV{PERL5LIB}) if ${^TAINT};
+      unshift @INC, map { /(.*)/; $1 } split(/:/, $ENV{PERL5LIB}) if defined $ENV{PERL5LIB} and ${^TAINT};
   
       my $cwd = ${^TAINT} ? do { local $_=getcwd; /(.*)/; $1 } : '.';
       unshift @INC, File::Spec->catdir($cwd, 'inc');
