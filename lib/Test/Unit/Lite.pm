@@ -2,7 +2,7 @@
 
 package Test::Unit::Lite;
 use 5.006;
-our $VERSION = 0.09_04;
+our $VERSION = '0.10';
 
 =head1 NAME
 
@@ -73,6 +73,7 @@ use strict;
 use warnings;
 
 
+use Carp ();
 use File::Spec ();
 use File::Basename ();
 use File::Copy ();
@@ -162,7 +163,9 @@ sub __croak {
 
     my $message = "$file:$line - $test($unit)\n$default_message\n$custom_message";
     chomp $message;
-    die "$message\n";
+
+    local $Carp::Internal{'Test::Unit::TestCase'} = 1;
+    Carp::confess("$message\n");
 }
 
 sub fail {

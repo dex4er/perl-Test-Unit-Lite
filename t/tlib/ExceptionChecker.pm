@@ -20,14 +20,14 @@ sub check_failures {
         # t/tlib/AssertTest.pm:223 - AssertTest(test_fail_assert_not_equals)
         # 0 and 0 should be differ
         # customised message
-        if ($exception ne '' and $exception =~ /^.*:(\d+) - (?:.*\n)?(.*)\n/s) {
+        if ($exception ne '' and $exception =~ /^.*?:(\d+) - (?:.*?\n)?(.*?)\n at /s) {
             my ($line, $message) = ($1, $2);
 
             if ($line != $test_code_line or 
-                   (ref $expected eq 'Regexp' and $message !~ /$expected/ or
+                   (ref $expected eq 'Regexp' and $message !~ /$expected/s or
                     ref $expected ne 'Regexp' and $message ne $expected))
             {
-                $self->fail($exception);
+                $self->fail("Expected: $expected\nFound: $message");
             }
         }
     }
