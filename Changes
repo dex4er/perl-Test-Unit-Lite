@@ -3,7 +3,7 @@
 
 Changes:
 
-* The failures are more verbose.
+* The failures are more verbose and dumps stack trace via Carp::confess.
 
 ------------------------------------------------------------------------
 0.0904 | Piotr Roszatycki <dexter@debian.org> | 2008-04-15
