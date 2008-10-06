@@ -239,7 +239,7 @@ sub assert_num_equals {
     my ($self, $arg1, $arg2, $msg) = @_;
     __croak "expected value was undef; should be using assert_null?", $msg unless defined $arg1;
     __croak "expected '$arg1', got undef", $msg unless defined $arg2;
-    no warnings;
+    no warnings 'numeric';
     __croak "expected $arg1, got $arg2", $msg unless $arg1 == $arg2;
 }
 
@@ -247,7 +247,7 @@ sub assert_num_not_equals {
     my ($self, $arg1, $arg2, $msg) = @_;
     __croak "expected value was undef; should be using assert_null?", $msg unless defined $arg1;
     __croak "expected '$arg1', got undef", $msg unless defined $arg2;
-    no warnings;
+    no warnings 'numeric';
     __croak "$arg1 and $arg2 should differ", $msg unless $arg1 != $arg2;
 }
 
