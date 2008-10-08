@@ -2,7 +2,7 @@
 
 package Test::Unit::Lite;
 use 5.006;
-our $VERSION = 0.09_04;
+our $VERSION = '0.10';
 
 =head1 NAME
 
@@ -73,6 +73,7 @@ use strict;
 use warnings;
 
 
+use Carp ();
 use File::Spec ();
 use File::Basename ();
 use File::Copy ();
@@ -162,7 +163,9 @@ sub __croak {
 
     my $message = "$file:$line - $test($unit)\n$default_message\n$custom_message";
     chomp $message;
-    die "$message\n";
+
+    local $Carp::Internal{'Test::Unit::TestCase'} = 1;
+    Carp::confess("$message\n");
 }
 
 sub fail {
@@ -236,7 +239,7 @@ sub assert_num_equals {
     my ($self, $arg1, $arg2, $msg) = @_;
     __croak "expected value was undef; should be using assert_null?", $msg unless defined $arg1;
     __croak "expected '$arg1', got undef", $msg unless defined $arg2;
-    no warnings;
+    no warnings 'numeric';
     __croak "expected $arg1, got $arg2", $msg unless $arg1 == $arg2;
 }
 
@@ -244,7 +247,7 @@ sub assert_num_not_equals {
     my ($self, $arg1, $arg2, $msg) = @_;
     __croak "expected value was undef; should be using assert_null?", $msg unless defined $arg1;
     __croak "expected '$arg1', got undef", $msg unless defined $arg2;
-    no warnings;
+    no warnings 'numeric';
     __croak "$arg1 and $arg2 should differ", $msg unless $arg1 != $arg2;
 }
 
@@ -491,9 +494,9 @@ sub new {
     };
 
     if (defined $test and not ref $test) {
-	# untaint $test
-	$test =~ /([A-Za-z0-9:-]*)/;
-	$test = $1;
+        # untaint $test
+        $test =~ /([A-Za-z0-9:-]*)/;
+        $test = $1;
         eval "use $test;";
         die $@ if $@;
     }
@@ -530,9 +533,9 @@ sub add_test {
     my ($self, $unit) = @_;
 
     if (not ref $unit) {
-	# untaint $unit
-	$unit =~ /([A-Za-z0-9:-]*)/;
-	$unit = $1;
+        # untaint $unit
+        $unit =~ /([A-Za-z0-9:-]*)/;
+        $unit = $1;
         eval "use $unit;";
         die $@ if $@;
         return unless $unit->isa('Test::Unit::TestCase');
@@ -560,7 +563,7 @@ sub run {
     foreach my $unit (@{ $self->units }) {
         foreach my $test (@{ $unit->list_tests }) {
             my $unit_test = (ref $unit ? ref $unit : $unit) . '::' . $test;
-    	    $unit->set_up;
+            $unit->set_up;
             eval {
                 $unit->$test;
             };
@@ -570,7 +573,7 @@ sub run {
             else {
                 $result->add_error($unit_test, "$@", $runner);
             }
-    	    $unit->tear_down;
+            $unit->tear_down;
         }
     }
     return;
@@ -1070,25 +1073,25 @@ This is the simple unit test module.
 This is the test script for L<Test::Harness> called with "make test".
 
   #!/usr/bin/perl
-  
+
   use strict;
   use warnings;
-  
+
   use File::Spec;
   use Cwd;
-  
+
   BEGIN {
       unshift @INC, map { /(.*)/; $1 } split(/:/, $ENV{PERL5LIB}) if defined $ENV{PERL5LIB} and ${^TAINT};
-  
+
       my $cwd = ${^TAINT} ? do { local $_=getcwd; /(.*)/; $1 } : '.';
       unshift @INC, File::Spec->catdir($cwd, 'inc');
       unshift @INC, File::Spec->catdir($cwd, 'lib');
   }
-  
+
   use Test::Unit::Lite;
-  
+
   local $SIG{__WARN__} = sub { require Carp; Carp::confess("Warning: $_[0]") };
-  
+
   Test::Unit::HarnessUnit->new->start('Test::Unit::Lite::AllTests');
 
 =head2 t/test.pl
@@ -1096,29 +1099,29 @@ This is the test script for L<Test::Harness> called with "make test".
 This is the optional script for calling test suite directly.
 
   #!/usr/bin/perl
-  
+
   use strict;
   use warnings;
-  
+
   use File::Basename;
   use File::Spec;
   use Cwd;
-  
+
   BEGIN {
       chdir dirname(__FILE__) or die "$!";
       chdir '..' or die "$!";
-  
+
       unshift @INC, map { /(.*)/; $1 } split(/:/, $ENV{PERL5LIB}) if defined $ENV{PERL5LIB} and ${^TAINT};
-  
+
       my $cwd = ${^TAINT} ? do { local $_=getcwd; /(.*)/; $1 } : '.';
       unshift @INC, File::Spec->catdir($cwd, 'inc');
       unshift @INC, File::Spec->catdir($cwd, 'lib');
   }
-  
+
   use Test::Unit::Lite;
-  
+
   local $SIG{__WARN__} = sub { require Carp; Carp::confess("Warning: $_[0]") };
-  
+
   all_tests;
 
 This is perl equivalent of shell command line:

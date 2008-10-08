@@ -46,11 +46,11 @@ sub test_assert {
         'Boolean assertion failed' => [ __LINE__, sub { shift->assert(0)   } ],
         'Boolean assertion failed' => [ __LINE__, sub { shift->assert('')  } ],
 
-        'bang'  => [ __LINE__, sub { shift->assert(0, 'bang')              } ],
-        'bang'  => [ __LINE__, sub { shift->assert('', 'bang')             } ],
+        qr/bang/   => [ __LINE__, sub { shift->assert(0, 'bang')              } ],
+        qr/bang/   => [ __LINE__, sub { shift->assert('', 'bang')             } ],
         qr/did not match /
-                => [ __LINE__, sub { shift->assert(qr/foo/, 'qux')         } ],
-        'bang'  => [ __LINE__, sub { shift->assert(qr/foo/, 'qux', 'bang') } ],
+                 => [ __LINE__, sub { shift->assert(qr/foo/, 'qux')         } ],
+        qr/bang/ => [ __LINE__, sub { shift->assert(qr/foo/, 'qux', 'bang') } ],
     );
 }
 
@@ -145,7 +145,7 @@ sub test_fail_assert_null {
     $self->check_failures(
         'Defined is defined'
           => [ __LINE__, sub { $self->assert_null('Defined') } ],
-        'Weirdness'
+        qr/Weirdness/
           => [ __LINE__, sub { $self->assert_null('Defined', 'Weirdness') } ],
     );
 }
@@ -194,7 +194,7 @@ sub test_fail_assert_not_equals {
         my $pair     = shift @pairs;
         push @tests, $expected
           => [ __LINE__, sub { $self->assert_not_equals(@$pair) } ];
-        push @tests, "custom message",
+        push @tests, qr/custom message/,
           => [ __LINE__, sub { $self->assert_not_equals(@$pair,
                                                         "custom message") } ];
     }
@@ -210,7 +210,7 @@ sub test_fail_assert_not_null {
           => [ __LINE__, sub { $self->assert_not_null() } ],
 	  # nb. $self->assert_not_null(@emptylist, "message") is not
 	  # going to do what you expected!
-        'Weirdness'
+        qr/Weirdness/
           => [ __LINE__, sub { $self->assert_not_null(undef, 'Weirdness') } ]
     );
 }
@@ -354,7 +354,7 @@ sub test_assert_deep_equals {
         my $pair     = shift @pairs;
         push @tests, $expected,
           [ __LINE__, sub { $self->assert_deep_equals(@$pair) } ];
-        push @tests, "custom message",
+        push @tests, qr/custom message/,
           [ __LINE__, sub { $self->assert_deep_equals(@$pair,
                                                      "custom message") } ];
         $n ++;

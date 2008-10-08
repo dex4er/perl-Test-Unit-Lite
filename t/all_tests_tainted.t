@@ -1,7 +1,7 @@
 #!/usr/bin/perl -T
 
 use 5.006;
-BEGIN { if ($^V and $^V lt v5.8.0) { print "1..0 # Skip Perl is too old\n"; exit 0 } }
+BEGIN { if ($] < 5.008) { print "1..0 # Skip Perl is too old\n"; exit 0 } }
 
 use strict;
 use warnings;
