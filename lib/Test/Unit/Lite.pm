@@ -2,7 +2,7 @@
 
 package Test::Unit::Lite;
 use 5.006;
-our $VERSION = '0.10';
+our $VERSION = 0.10_01;
 
 =head1 NAME
 
@@ -157,7 +157,7 @@ sub __croak {
     my $caller;
     $n++ while (defined( $caller = caller($n) ) and not eval { $caller->isa('Test::Unit::TestSuite') });
 
-    my $sub = (caller($n))[3];
+    my $sub = (caller($n))[3] || '::';
     $sub =~ /^(.*)::([^:]*)$/;
     my ($test, $unit) = ($1, $2);
 
