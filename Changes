@@ -1,4 +1,11 @@
 ------------------------------------------------------------------------
+0.1001 | Piotr Roszatycki <dexter@debian.org> | 2008-10-08
+
+Changes:
+
+* Fixed some warnings.
+
+------------------------------------------------------------------------
 0.10 | Piotr Roszatycki <dexter@debian.org> | 2008-10-08
 
 Changes:
