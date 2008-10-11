@@ -1,4 +1,11 @@
 ------------------------------------------------------------------------
+0.1002 | Piotr Roszatycki <dexter@debian.org> | 2008-10-11
+
+Changes:
+
+* Propagate die in the right way.
+
+------------------------------------------------------------------------
 0.1001 | Piotr Roszatycki <dexter@debian.org> | 2008-10-08
 
 Changes:
