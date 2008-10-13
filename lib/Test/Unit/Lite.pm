@@ -2,7 +2,7 @@
 
 package Test::Unit::Lite;
 use 5.006;
-our $VERSION = 0.10_01;
+our $VERSION = 0.10_02;
 
 =head1 NAME
 
@@ -498,7 +498,7 @@ sub new {
         $test =~ /([A-Za-z0-9:-]*)/;
         $test = $1;
         eval "use $test;";
-        die $@ if $@;
+        die if $@;
     }
     elsif (not defined $test) {
         $test = $class;
@@ -537,7 +537,7 @@ sub add_test {
         $unit =~ /([A-Za-z0-9:-]*)/;
         $unit = $1;
         eval "use $unit;";
-        die $@ if $@;
+        die if $@;
         return unless $unit->isa('Test::Unit::TestCase');
     }
 
@@ -670,7 +670,7 @@ sub start {
     $test =~ /([A-Za-z0-9:-]*)/;
     $test = $1;
     eval "use $test;";
-    die $@ if $@;
+    die if $@;
 
     if ($test->isa('Test::Unit::TestSuite')) {
         $self->{suite} = $test->suite;
@@ -710,7 +710,7 @@ sub print_pass {
 
 sub print_error {
     my ($self, $result) = @_;
-    printf { $self->fh_out } "\nnot ok %s %s\n", $result->{type}, $result->{test};
+    printf { $self->fh_out } "not ok %s %s\n", $result->{type}, $result->{test};
     print { $self->fh_err } join("\n# ", split /\n/, "# " . $result->{message}), "\n";
 }
 
