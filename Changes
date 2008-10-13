@@ -5,6 +5,8 @@ Changes:
 
 * Propagate die in the right way.
 
+* Do not put empty line before "not ok" message.
+
 ------------------------------------------------------------------------
 0.1001 | Piotr Roszatycki <dexter@debian.org> | 2008-10-08
 

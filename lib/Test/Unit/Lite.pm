@@ -710,7 +710,7 @@ sub print_pass {
 
 sub print_error {
     my ($self, $result) = @_;
-    printf { $self->fh_out } "\nnot ok %s %s\n", $result->{type}, $result->{test};
+    printf { $self->fh_out } "not ok %s %s\n", $result->{type}, $result->{test};
     print { $self->fh_err } join("\n# ", split /\n/, "# " . $result->{message}), "\n";
 }
 
