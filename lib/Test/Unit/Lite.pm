@@ -2,7 +2,7 @@
 
 package Test::Unit::Lite;
 use 5.006;
-our $VERSION = 0.10_02;
+our $VERSION = 0.10_03;
 
 =head1 NAME
 
@@ -567,8 +567,8 @@ sub run {
             eval {
                 $unit->$test;
             };
-            if ($@ eq '') {
-                $result->add_pass($unit_test, q{}, $runner);
+            if ("$@" eq '') {
+                $result->add_pass($unit_test, "", $runner);
             }
             else {
                 $result->add_error($unit_test, "$@", $runner);
