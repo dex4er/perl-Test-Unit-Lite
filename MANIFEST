@@ -9,8 +9,6 @@ README
 t/all_tests.t
 t/all_tests_tainted.t
 t/cover.sh
-t/pod.t
-t/pod_coverage.t
 t/test.pl
 t/test_tainted.pl
 t/tlib/AssertTest.pm
@@ -30,3 +28,5 @@ t/tlib/SetUpTearDownTest.pm
 t/tlib/SuccessTest.pm
 t/tlib/TestObject.pm
 t/tlib/WillDie.pm
+xt/pod.t
+xt/pod_coverage.t

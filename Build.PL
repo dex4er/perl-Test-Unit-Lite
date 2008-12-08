@@ -21,7 +21,7 @@ my $build = Module::Build->new(
     create_readme => 1,
     recursive_test_files => 1,
     add_to_cleanup => [
-        'META.yml', '*.bak', '*.gz', '*.tgz', '*.ppd',
+        'META.yml', '*.bak', '*.gz', '*.tgz', '*.ppd', '*.deb', '*.bat',
         'Makefile.PL', 'Makefile', 'pm_to_blib', 'README', 'cover_db',
 	'Test-Unit-Lite-*',
     ],

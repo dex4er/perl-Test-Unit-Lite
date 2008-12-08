@@ -1,4 +1,14 @@
 ------------------------------------------------------------------------
+0.1003 | Piotr Roszatycki <dexter@debian.org> | 2008-12-08
+
+Changes:
+
+* Stringify eval error explicity in case that exception object doesn't
+  support "eq" operator.
+  
+* Does not use Symbol::stash sub.
+
+------------------------------------------------------------------------
 0.1002 | Piotr Roszatycki <dexter@debian.org> | 2008-10-13
 
 Changes:
