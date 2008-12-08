@@ -39,5 +39,6 @@
 \.gz$
 \.ppd$
 \.tgz$
+\.deb$
 
 \bTest-Unit-Lite-

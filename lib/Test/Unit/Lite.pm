@@ -78,15 +78,12 @@ use File::Spec ();
 use File::Basename ();
 use File::Copy ();
 use File::Path ();
-
-
-# Safe operations on symbol stash
-BEGIN { *Symbol::stash = sub ($) { no strict 'refs'; \%{ *{$_[0].'::'} } } unless defined &Symbol::stash; }
+use Symbol ();
 
 
 # Can't use Exporter 'import'. Compatibility with Perl 5.6
 use Exporter (); *import = \&Exporter::import;
-our @EXPORT = qw< bundle all_tests >;
+our @EXPORT = qw{ bundle all_tests };
 
 
 # Copy this module to inc subdirectory of the source distribution
@@ -143,7 +140,7 @@ sub list_tests {
     my $class = ref $self || $self;
 
     no strict 'refs';
-    my @tests = sort grep { /^test_/ } keys %{ Symbol::stash($class) };
+    my @tests = sort grep { /^test_/ } keys %{ *{ Symbol::qualify_to_ref("${class}::") } };
     return wantarray ? @tests : [ @tests ];
 }
 
