@@ -2,7 +2,7 @@
 
 package Test::Unit::Lite;
 use 5.006;
-our $VERSION = 0.10_03;
+our $VERSION = 0.11;
 
 =head1 NAME
 
@@ -648,13 +648,13 @@ sub print_footer {
         printf { $self->fh_out } "\nFAILURES!!!\n\n";
         foreach my $message (@{ $result->messages }) {
             if ($message->{type} eq 'ERROR') {
-                printf { $self->fh_out } '-' x 78 . "\n"
-                                       . $message->{test} . ":\n"
-                                       . "\n"
-                                       . $message->{message} . "\n";
+                printf { $self->fh_out } "%s\n%s:\n\n%s\n",
+                                         '-' x 78,
+                                         $message->{test},
+                                         $message->{message};
             }
         }
-        printf { $self->fh_out } '-' x 78 . "\n";
+        printf { $self->fh_out } "%s\n", '-' x 78;
     }
 }
 
