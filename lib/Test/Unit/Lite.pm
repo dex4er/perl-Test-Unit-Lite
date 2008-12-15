@@ -1,8 +1,6 @@
 #!/usr/bin/perl -c
 
 package Test::Unit::Lite;
-use 5.006;
-our $VERSION = 0.10_03;
 
 =head1 NAME
 
@@ -69,9 +67,11 @@ source directory for the package distribution.
 =cut
 
 
+use 5.006;
 use strict;
 use warnings;
 
+our $VERSION = 0.11;
 
 use Carp ();
 use File::Spec ();
@@ -428,6 +428,7 @@ sub new {
     my $self = {
         'messages' => [],
         'errors'   => 0,
+        'failures' => 0,
         'passes'   => 0,
     };
 
@@ -444,6 +445,11 @@ sub errors {
     return $self->{errors};
 }
 
+sub failures {
+    my ($self) = @_;
+    return $self->{failures};
+}
+
 sub passes {
     my ($self) = @_;
     return $self->{passes};
@@ -455,6 +461,14 @@ sub add_error {
     my $result = {test => $test, type => 'ERROR', message => $message};
     push @{$self->messages}, $result;
     $runner->print_error($result) if defined $runner;
+}
+
+sub add_failure {
+    my ($self, $test, $message, $runner) = @_;
+    $self->{failures}++;
+    my $result = {test => $test, type => 'FAILURE', message => $message};
+    push @{$self->messages}, $result;
+    $runner->print_failure($result) if defined $runner;
 }
 
 sub add_pass {
@@ -560,17 +574,24 @@ sub run {
     foreach my $unit (@{ $self->units }) {
         foreach my $test (@{ $unit->list_tests }) {
             my $unit_test = (ref $unit ? ref $unit : $unit) . '::' . $test;
-            $unit->set_up;
+            my $add_what;
             eval {
-                $unit->$test;
+                $unit->set_up;
+                eval {
+                    $unit->$test;
+                };
+                my $e = $@;
+                $unit->tear_down;
+                if ($e) {
+                    $add_what = 'add_failure';
+                    die $e;
+                }
+                $add_what = 'add_pass';
             };
-            if ("$@" eq '') {
-                $result->add_pass($unit_test, "", $runner);
+            if ($@ and not $add_what) {
+                $add_what = 'add_error';
             }
-            else {
-                $result->add_error($unit_test, "$@", $runner);
-            }
-            $unit->tear_down;
+            $result->$add_what($unit_test, "$@", $runner);
         }
     }
     return;
@@ -627,14 +648,19 @@ sub suite {
 sub print_header {
 }
 
-sub print_pass {
-    my ($self, $result) = @_;
-    printf { $self->fh_out } ".";
-}
-
 sub print_error {
     my ($self, $result) = @_;
-    printf { $self->fh_out } "E";
+    print { $self->fh_out } "E";
+}
+
+sub print_failure {
+    my ($self, $result) = @_;
+    print { $self->fh_out } "F";
+}
+
+sub print_pass {
+    my ($self, $result) = @_;
+    print { $self->fh_out } ".";
 }
 
 sub print_footer {
@@ -643,18 +669,33 @@ sub print_footer {
     if ($result->errors) {
         printf { $self->fh_out } ", Errors: %d", $result->errors;
     }
-    printf { $self->fh_out } "\n";
+    if ($result->failures) {
+        printf { $self->fh_out } ", Failures: %d", $result->failures;
+    }
+    print { $self->fh_out } "\n";
     if ($result->errors) {
-        printf { $self->fh_out } "\nFAILURES!!!\n\n";
+        print { $self->fh_out } "\nERRORS!!!\n\n";
         foreach my $message (@{ $result->messages }) {
             if ($message->{type} eq 'ERROR') {
-                printf { $self->fh_out } '-' x 78 . "\n"
-                                       . $message->{test} . ":\n"
-                                       . "\n"
-                                       . $message->{message} . "\n";
+                printf { $self->fh_out } "%s\n%s:\n\n%s\n",
+                                         '-' x 78,
+                                         $message->{test},
+                                         $message->{message};
             }
         }
-        printf { $self->fh_out } '-' x 78 . "\n";
+        printf { $self->fh_out } "%s\n", '-' x 78;
+    }
+    if ($result->failures) {
+        print { $self->fh_out } "\nFAILURES!!!\n\n";
+        foreach my $message (@{ $result->messages }) {
+            if ($message->{type} eq 'FAILURE') {
+                printf { $self->fh_out } "%s\n%s:\n\n%s\n",
+                                         '-' x 78,
+                                         $message->{test},
+                                         $message->{message};
+            }
+        }
+        printf { $self->fh_out } "%s\n", '-' x 78;
     }
 }
 
@@ -700,15 +741,21 @@ sub print_header {
     printf { $self->fh_out } "1..%d\n", $self->suite->count_test_cases;
 }
 
-sub print_pass {
-    my ($self, $result) = @_;
-    printf { $self->fh_out } "ok %s %s\n", $result->{type}, $result->{test};
-}
-
 sub print_error {
     my ($self, $result) = @_;
     printf { $self->fh_out } "not ok %s %s\n", $result->{type}, $result->{test};
     print { $self->fh_err } join("\n# ", split /\n/, "# " . $result->{message}), "\n";
+}
+
+sub print_failure {
+    my ($self, $result) = @_;
+    printf { $self->fh_out } "not ok %s %s\n", $result->{type}, $result->{test};
+    print { $self->fh_err } join("\n# ", split /\n/, "# " . $result->{message}), "\n";
+}
+
+sub print_pass {
+    my ($self, $result) = @_;
+    printf { $self->fh_out } "ok %s %s\n", $result->{type}, $result->{test};
 }
 
 sub print_footer {
@@ -944,6 +991,10 @@ Called before running test suite.
 
 =item print_error
 
+Called after error was occured on C<set_up> or C<tear_down> method.
+
+=item print_failure
+
 Called after test unit is failed.
 
 =item print_pass
@@ -983,7 +1034,7 @@ the test unit name,
 
 =item type
 
-the type of message (PASS or ERROR),
+the type of message (PASS, ERROR, FAILURE),
 
 =item message
 
@@ -995,6 +1046,10 @@ the text of message.
 
 Contains the number of collected errors.
 
+=item failures
+
+Contains the number of collected failures.
+
 =item passes
 
 Contains the number of collected passes.
@@ -1002,6 +1057,10 @@ Contains the number of collected passes.
 =item add_error(TEST, MESSAGE)
 
 Adds an error to the report.
+
+=item add_failure(TEST, MESSAGE)
+
+Adds an failure to the report.
 
 =item add_pass(TEST, MESSAGE)
 

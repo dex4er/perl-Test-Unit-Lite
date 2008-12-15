@@ -23,6 +23,7 @@ my $build = Module::Build->new(
     add_to_cleanup => [
         'META.yml', '*.bak', '*.gz', '*.tgz', '*.ppd', '*.deb', '*.bat',
         'Makefile.PL', 'Makefile', 'pm_to_blib', 'README', 'cover_db',
+        'Debian_CPANTS.txt',
 	'Test-Unit-Lite-*',
     ],
 );
