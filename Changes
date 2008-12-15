@@ -1,5 +1,12 @@
 ------------------------------------------------------------------------
-0.11 | Piotr Roszatycki <dexter@debian.org> | 2008-12-15
+0.11 | Piotr Roszatycki <dexter@debian.org> | 2008-12-16
+
+New:
+
+* New type of test status "failure" is set if the test unit fails.
+* Old type of test status "error" is set if error was occured in "set_up" or
+  "tear_down" method.
+* Error on "set_up" or "tear_down" doesn't stop whole test runner.
 
 Fixes:
 

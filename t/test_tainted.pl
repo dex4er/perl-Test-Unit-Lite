@@ -1,6 +1,7 @@
 #!/usr/bin/perl -T
 
-use 5.008;
+use 5.006;
+BEGIN { if ($] < 5.008) { print "Perl is too old\n"; exit 0 } }
 
 use strict;
 use warnings;
