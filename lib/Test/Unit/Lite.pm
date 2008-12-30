@@ -71,7 +71,7 @@ use 5.006;
 use strict;
 use warnings;
 
-our $VERSION = 0.11;
+our $VERSION = 0.11_01;
 
 use Carp ();
 use File::Spec ();
@@ -115,707 +115,705 @@ sub all_tests {
 }
 
 
-
-package Test::Unit::TestCase;
-our $VERSION = $Test::Unit::Lite::VERSION;
-
-our %Seen_Refs = ();
-our @Data_Stack;
-my $DNE = bless [], 'Does::Not::Exist';
-
-sub new {
-    my ($class) = @_;
-    $class = ref $class if ref $class;
-    my $self = {};
-    return bless $self => $class;
-}
-
-sub set_up { }
-
-sub tear_down { }
-
-sub list_tests {
-    my ($self) = @_;
-
-    my $class = ref $self || $self;
-
-    no strict 'refs';
-    my @tests = sort grep { /^test_/ } keys %{ *{ Symbol::qualify_to_ref("${class}::") } };
-    return wantarray ? @tests : [ @tests ];
-}
-
-sub __croak {
-    my ($default_message, $custom_message) = @_;
-    $default_message = '' unless defined $default_message;
-    $custom_message = '' unless defined $custom_message;
-    my $n = 1;
-
-    my ($file, $line) = (caller($n++))[1,2];
-    my $caller;
-    $n++ while (defined( $caller = caller($n) ) and not eval { $caller->isa('Test::Unit::TestSuite') });
-
-    my $sub = (caller($n))[3] || '::';
-    $sub =~ /^(.*)::([^:]*)$/;
-    my ($test, $unit) = ($1, $2);
-
-    my $message = "$file:$line - $test($unit)\n$default_message\n$custom_message";
-    chomp $message;
-
-    local $Carp::Internal{'Test::Unit::TestCase'} = 1;
-    Carp::confess("$message\n");
-}
-
-sub fail {
-    my ($self, $msg) = @_;
-    $msg = '' unless defined $msg;
-    __croak $msg;
-}
-
-sub assert {
-    my $self = shift;
-    my $arg1 = shift;
-    if (ref $arg1 eq 'Regexp') {
-        my $arg2 = shift;
-        my $msg = shift;
-        __croak "'$arg2' did not match /$arg1/", $msg unless $arg2 =~ $arg1;
+{
+    package Test::Unit::TestCase;
+    our $VERSION = $Test::Unit::Lite::VERSION;
+    
+    our %Seen_Refs = ();
+    our @Data_Stack;
+    my $DNE = bless [], 'Does::Not::Exist';
+    
+    sub new {
+        my ($class) = @_;
+        $class = ref $class if ref $class;
+        my $self = {};
+        return bless $self => $class;
     }
-    else {
-        my $msg = shift;
-        __croak "Boolean assertion failed", $msg unless $arg1;
+    
+    sub set_up { }
+    
+    sub tear_down { }
+    
+    sub list_tests {
+        my ($self) = @_;
+    
+        my $class = ref $self || $self;
+    
+        no strict 'refs';
+        my @tests = sort grep { /^test_/ } keys %{ *{ Symbol::qualify_to_ref("${class}::") } };
+        return wantarray ? @tests : [ @tests ];
     }
-}
-
-sub assert_null {
-    my ($self, $arg, $msg) = @_;
-    __croak "$arg is defined", $msg unless not defined $arg;
-}
-
-sub assert_not_null {
-    my ($self, $arg, $msg) = @_;
-    __croak "<undef> unexpected", $msg unless defined $arg;
-}
-
-sub assert_equals {
-    my ($self, $arg1, $arg2, $msg) = @_;
-    if (not defined $arg1 and not defined $arg2) {
-        return;
+    
+    sub __croak {
+        my ($default_message, $custom_message) = @_;
+        $default_message = '' unless defined $default_message;
+        $custom_message = '' unless defined $custom_message;
+        my $n = 1;
+    
+        my ($file, $line) = (caller($n++))[1,2];
+        my $caller;
+        $n++ while (defined( $caller = caller($n) ) and not eval { $caller->isa('Test::Unit::TestSuite') });
+    
+        my $sub = (caller($n))[3] || '::';
+        $sub =~ /^(.*)::([^:]*)$/;
+        my ($test, $unit) = ($1, $2);
+    
+        my $message = "$file:$line - $test($unit)\n$default_message\n$custom_message";
+        chomp $message;
+    
+        local $Carp::Internal{'Test::Unit::TestCase'} = 1;
+        Carp::confess("$message\n");
     }
-    __croak "expected value was undef; should be using assert_null?", $msg unless defined $arg1;
-    __croak "expected '$arg1', got undef", $msg unless defined $arg2;
-    if ($arg1 =~ /^[+-]?(\d+\.\d+|\d+\.|\.\d+|\d+)([eE][+-]?\d+)?$/ and
-        $arg2 =~ /^[+-]?(\d+\.\d+|\d+\.|\.\d+|\d+)([eE][+-]?\d+)?$/)
-    {
-        local $^W;
+    
+    sub fail {
+        my ($self, $msg) = @_;
+        $msg = '' unless defined $msg;
+        __croak $msg;
+    }
+    
+    sub assert {
+        my $self = shift;
+        my $arg1 = shift;
+        if (ref $arg1 eq 'Regexp') {
+            my $arg2 = shift;
+            my $msg = shift;
+            __croak "'$arg2' did not match /$arg1/", $msg unless $arg2 =~ $arg1;
+        }
+        else {
+            my $msg = shift;
+            __croak "Boolean assertion failed", $msg unless $arg1;
+        }
+    }
+    
+    sub assert_null {
+        my ($self, $arg, $msg) = @_;
+        __croak "$arg is defined", $msg unless not defined $arg;
+    }
+    
+    sub assert_not_null {
+        my ($self, $arg, $msg) = @_;
+        __croak "<undef> unexpected", $msg unless defined $arg;
+    }
+    
+    sub assert_equals {
+        my ($self, $arg1, $arg2, $msg) = @_;
+        if (not defined $arg1 and not defined $arg2) {
+            return;
+        }
+        __croak "expected value was undef; should be using assert_null?", $msg unless defined $arg1;
+        __croak "expected '$arg1', got undef", $msg unless defined $arg2;
+        if ($arg1 =~ /^[+-]?(\d+\.\d+|\d+\.|\.\d+|\d+)([eE][+-]?\d+)?$/ and
+            $arg2 =~ /^[+-]?(\d+\.\d+|\d+\.|\.\d+|\d+)([eE][+-]?\d+)?$/)
+        {
+            local $^W;
+            __croak "expected $arg1, got $arg2", $msg unless $arg1 == $arg2;
+        }
+        else {
+            __croak "expected '$arg1', got '$arg2'", $msg unless $arg1 eq $arg2;
+        }
+    }
+    
+    sub assert_not_equals {
+        my ($self, $arg1, $arg2, $msg) = @_;
+        if (not defined $arg1 and not defined $arg2) {
+            __croak "both args were undefined", $msg;
+        }
+        if (not defined $arg1 xor not defined $arg2) {
+            # pass
+        }
+        elsif ($arg1 =~ /^[+-]?(\d+\.\d+|\d+\.|\.\d+|\d+)([eE][+-]?\d+)?$/ and
+               $arg2 =~ /^[+-]?(\d+\.\d+|\d+\.|\.\d+|\d+)([eE][+-]?\d+)?$/)
+        {
+            local $^W;
+            __croak "$arg1 and $arg2 should differ", $msg unless $arg1 != $arg2;
+        }
+        else {
+            __croak "'$arg1' and '$arg2' should differ", $msg unless $arg1 ne $arg2;
+        }
+    }
+    
+    sub assert_num_equals {
+        my ($self, $arg1, $arg2, $msg) = @_;
+        __croak "expected value was undef; should be using assert_null?", $msg unless defined $arg1;
+        __croak "expected '$arg1', got undef", $msg unless defined $arg2;
+        no warnings 'numeric';
         __croak "expected $arg1, got $arg2", $msg unless $arg1 == $arg2;
     }
-    else {
-        __croak "expected '$arg1', got '$arg2'", $msg unless $arg1 eq $arg2;
-    }
-}
-
-sub assert_not_equals {
-    my ($self, $arg1, $arg2, $msg) = @_;
-    if (not defined $arg1 and not defined $arg2) {
-        __croak "both args were undefined", $msg;
-    }
-    if (not defined $arg1 xor not defined $arg2) {
-        # pass
-    }
-    elsif ($arg1 =~ /^[+-]?(\d+\.\d+|\d+\.|\.\d+|\d+)([eE][+-]?\d+)?$/ and
-           $arg2 =~ /^[+-]?(\d+\.\d+|\d+\.|\.\d+|\d+)([eE][+-]?\d+)?$/)
-    {
-        local $^W;
+    
+    sub assert_num_not_equals {
+        my ($self, $arg1, $arg2, $msg) = @_;
+        __croak "expected value was undef; should be using assert_null?", $msg unless defined $arg1;
+        __croak "expected '$arg1', got undef", $msg unless defined $arg2;
+        no warnings 'numeric';
         __croak "$arg1 and $arg2 should differ", $msg unless $arg1 != $arg2;
     }
-    else {
-        __croak "'$arg1' and '$arg2' should differ", $msg unless $arg1 ne $arg2;
+    
+    sub assert_str_equals {
+        my ($self, $arg1, $arg2, $msg) = @_;
+        __croak "expected value was undef; should be using assert_null?", $msg unless defined $arg1;
+        __croak "expected '$arg1', got undef", $msg unless defined $arg2;
+        __croak "expected '$arg1', got '$arg2'", $msg unless "$arg1" eq "$arg2";
     }
-}
-
-sub assert_num_equals {
-    my ($self, $arg1, $arg2, $msg) = @_;
-    __croak "expected value was undef; should be using assert_null?", $msg unless defined $arg1;
-    __croak "expected '$arg1', got undef", $msg unless defined $arg2;
-    no warnings 'numeric';
-    __croak "expected $arg1, got $arg2", $msg unless $arg1 == $arg2;
-}
-
-sub assert_num_not_equals {
-    my ($self, $arg1, $arg2, $msg) = @_;
-    __croak "expected value was undef; should be using assert_null?", $msg unless defined $arg1;
-    __croak "expected '$arg1', got undef", $msg unless defined $arg2;
-    no warnings 'numeric';
-    __croak "$arg1 and $arg2 should differ", $msg unless $arg1 != $arg2;
-}
-
-sub assert_str_equals {
-    my ($self, $arg1, $arg2, $msg) = @_;
-    __croak "expected value was undef; should be using assert_null?", $msg unless defined $arg1;
-    __croak "expected '$arg1', got undef", $msg unless defined $arg2;
-    __croak "expected '$arg1', got '$arg2'", $msg unless "$arg1" eq "$arg2";
-}
-
-sub assert_str_not_equals {
-    my ($self, $arg1, $arg2, $msg) = @_;
-    __croak "expected value was undef; should be using assert_null?", $msg unless defined $arg1;
-    __croak "expected '$arg1', got undef", $msg unless defined $arg2;
-    __croak "'$arg1' and '$arg2' should differ", $msg unless "$arg1" ne "$arg2";
-}
-
-sub assert_matches {
-    my ($self, $arg1, $arg2, $msg) = @_;
-    __croak "arg 1 to assert_matches() must be a regexp", $msg unless ref $arg1 eq 'Regexp';
-    __croak "expected '$arg1', got undef", $msg unless defined $arg2;
-    __croak "$arg2 didn't match /$arg1/", $msg unless $arg2 =~ $arg1;
-}
-
-sub assert_does_not_match {
-    my ($self, $arg1, $arg2, $msg) = @_;
-    __croak "arg 1 to assert_does_not_match() must be a regexp", $msg unless ref $arg1 eq 'Regexp';
-    __croak "expected '$arg1', got undef", $msg unless defined $arg2;
-    __croak "$arg2 matched /$arg1/", $msg unless $arg2 !~ $arg1;
-}
-
-sub assert_deep_equals {
-    my ($self, $arg1, $arg2, $msg) = @_;
-    __croak 'Both arguments were not references', $msg unless ref $arg1 and ref $arg2;
-    local @Data_Stack = ();
-    local %Seen_Refs = ();
-    __croak $self->_format_stack(@Data_Stack), $msg unless $self->_deep_check($arg1, $arg2);
-}
-
-sub assert_deep_not_equals {
-    my ($self, $arg1, $arg2, $msg) = @_;
-
-    __croak 'Both arguments were not references', $msg unless ref $arg1 and ref $arg2;
-
-    local @Data_Stack = ();
-    local %Seen_Refs = ();
-    __croak $self->_format_stack(@Data_Stack), $msg if $self->_deep_check($arg1, $arg2);
-}
-
-sub _deep_check {
-    my $self = shift;
-    my ($e1, $e2) = @_;
-
-    if ( ! defined $e1 || ! defined $e2 ) {
-        return 1 if !defined $e1 && !defined $e2;
-        push @Data_Stack, { vals => [$e1, $e2] };
-        return 0;
+    
+    sub assert_str_not_equals {
+        my ($self, $arg1, $arg2, $msg) = @_;
+        __croak "expected value was undef; should be using assert_null?", $msg unless defined $arg1;
+        __croak "expected '$arg1', got undef", $msg unless defined $arg2;
+        __croak "'$arg1' and '$arg2' should differ", $msg unless "$arg1" ne "$arg2";
     }
-
-    return 1 if $e1 eq $e2;
-    if ( ref $e1 && ref $e2 ) {
-        my $e2_ref = "$e2";
-        return 1 if defined $Seen_Refs{$e1} && $Seen_Refs{$e1} eq $e2_ref;
-        $Seen_Refs{$e1} = $e2_ref;
+    
+    sub assert_matches {
+        my ($self, $arg1, $arg2, $msg) = @_;
+        __croak "arg 1 to assert_matches() must be a regexp", $msg unless ref $arg1 eq 'Regexp';
+        __croak "expected '$arg1', got undef", $msg unless defined $arg2;
+        __croak "$arg2 didn't match /$arg1/", $msg unless $arg2 =~ $arg1;
     }
-
-    if (ref $e1 eq 'ARRAY' and ref $e2 eq 'ARRAY') {
-        return $self->_eq_array($e1, $e2);
+    
+    sub assert_does_not_match {
+        my ($self, $arg1, $arg2, $msg) = @_;
+        __croak "arg 1 to assert_does_not_match() must be a regexp", $msg unless ref $arg1 eq 'Regexp';
+        __croak "expected '$arg1', got undef", $msg unless defined $arg2;
+        __croak "$arg2 matched /$arg1/", $msg unless $arg2 !~ $arg1;
     }
-    elsif (ref $e1 eq 'HASH' and ref $e2 eq 'HASH') {
-        return $self->_eq_hash($e1, $e2);
+    
+    sub assert_deep_equals {
+        my ($self, $arg1, $arg2, $msg) = @_;
+        __croak 'Both arguments were not references', $msg unless ref $arg1 and ref $arg2;
+        local @Data_Stack = ();
+        local %Seen_Refs = ();
+        __croak $self->_format_stack(@Data_Stack), $msg unless $self->_deep_check($arg1, $arg2);
     }
-    elsif (ref $e1 eq 'REF' and ref $e2 eq 'REF') {
-        push @Data_Stack, { type => 'REF', vals => [$e1, $e2] };
-        my $ok = $self->_deep_check($$e1, $$e2);
-        pop @Data_Stack if $ok;
+    
+    sub assert_deep_not_equals {
+        my ($self, $arg1, $arg2, $msg) = @_;
+    
+        __croak 'Both arguments were not references', $msg unless ref $arg1 and ref $arg2;
+    
+        local @Data_Stack = ();
+        local %Seen_Refs = ();
+        __croak $self->_format_stack(@Data_Stack), $msg if $self->_deep_check($arg1, $arg2);
+    }
+    
+    sub _deep_check {
+        my $self = shift;
+        my ($e1, $e2) = @_;
+    
+        if ( ! defined $e1 || ! defined $e2 ) {
+            return 1 if !defined $e1 && !defined $e2;
+            push @Data_Stack, { vals => [$e1, $e2] };
+            return 0;
+        }
+    
+        return 1 if $e1 eq $e2;
+        if ( ref $e1 && ref $e2 ) {
+            my $e2_ref = "$e2";
+            return 1 if defined $Seen_Refs{$e1} && $Seen_Refs{$e1} eq $e2_ref;
+            $Seen_Refs{$e1} = $e2_ref;
+        }
+    
+        if (ref $e1 eq 'ARRAY' and ref $e2 eq 'ARRAY') {
+            return $self->_eq_array($e1, $e2);
+        }
+        elsif (ref $e1 eq 'HASH' and ref $e2 eq 'HASH') {
+            return $self->_eq_hash($e1, $e2);
+        }
+        elsif (ref $e1 eq 'REF' and ref $e2 eq 'REF') {
+            push @Data_Stack, { type => 'REF', vals => [$e1, $e2] };
+            my $ok = $self->_deep_check($$e1, $$e2);
+            pop @Data_Stack if $ok;
+            return $ok;
+        }
+        elsif (ref $e1 eq 'SCALAR' and ref $e2 eq 'SCALAR') {
+            push @Data_Stack, { type => 'REF', vals => [$e1, $e2] };
+            return $self->_deep_check($$e1, $$e2);
+        }
+        else {
+            push @Data_Stack, { vals => [$e1, $e2] };
+            return 0;
+        }
+    }
+    
+    sub _eq_array  {
+        my $self = shift;
+        my($a1, $a2) = @_;
+        return 1 if $a1 eq $a2;
+    
+        my $ok = 1;
+        my $max = $#$a1 > $#$a2 ? $#$a1 : $#$a2;
+        for (0..$max) {
+            my $e1 = $_ > $#$a1 ? $DNE : $a1->[$_];
+            my $e2 = $_ > $#$a2 ? $DNE : $a2->[$_];
+    
+            push @Data_Stack, { type => 'ARRAY', idx => $_, vals => [$e1, $e2] };
+            $ok = $self->_deep_check($e1,$e2);
+            pop @Data_Stack if $ok;
+    
+            last unless $ok;
+        }
         return $ok;
     }
-    elsif (ref $e1 eq 'SCALAR' and ref $e2 eq 'SCALAR') {
-        push @Data_Stack, { type => 'REF', vals => [$e1, $e2] };
-        return $self->_deep_check($$e1, $$e2);
-    }
-    else {
-        push @Data_Stack, { vals => [$e1, $e2] };
-        return 0;
-    }
-}
-
-sub _eq_array  {
-    my $self = shift;
-    my($a1, $a2) = @_;
-    return 1 if $a1 eq $a2;
-
-    my $ok = 1;
-    my $max = $#$a1 > $#$a2 ? $#$a1 : $#$a2;
-    for (0..$max) {
-        my $e1 = $_ > $#$a1 ? $DNE : $a1->[$_];
-        my $e2 = $_ > $#$a2 ? $DNE : $a2->[$_];
-
-        push @Data_Stack, { type => 'ARRAY', idx => $_, vals => [$e1, $e2] };
-        $ok = $self->_deep_check($e1,$e2);
-        pop @Data_Stack if $ok;
-
-        last unless $ok;
-    }
-    return $ok;
-}
-
-sub _eq_hash {
-    my $self = shift;
-    my($a1, $a2) = @_;
-    return 1 if $a1 eq $a2;
-
-    my $ok = 1;
-    my $bigger = keys %$a1 > keys %$a2 ? $a1 : $a2;
-    foreach my $k (keys %$bigger) {
-        my $e1 = exists $a1->{$k} ? $a1->{$k} : $DNE;
-        my $e2 = exists $a2->{$k} ? $a2->{$k} : $DNE;
-
-        push @Data_Stack, { type => 'HASH', idx => $k, vals => [$e1, $e2] };
-        $ok = $self->_deep_check($e1, $e2);
-        pop @Data_Stack if $ok;
-
-        last unless $ok;
-    }
-
-    return $ok;
-}
-
-sub _format_stack {
-    my $self = shift;
-    my @Stack = @_;
-
-    my $var = '$FOO';
-    my $did_arrow = 0;
-    foreach my $entry (@Stack) {
-        my $type = $entry->{type} || '';
-        my $idx  = $entry->{'idx'};
-        if( $type eq 'HASH' ) {
-            $var .= "->" unless $did_arrow++;
-            $var .= "{$idx}";
+    
+    sub _eq_hash {
+        my $self = shift;
+        my($a1, $a2) = @_;
+        return 1 if $a1 eq $a2;
+    
+        my $ok = 1;
+        my $bigger = keys %$a1 > keys %$a2 ? $a1 : $a2;
+        foreach my $k (keys %$bigger) {
+            my $e1 = exists $a1->{$k} ? $a1->{$k} : $DNE;
+            my $e2 = exists $a2->{$k} ? $a2->{$k} : $DNE;
+    
+            push @Data_Stack, { type => 'HASH', idx => $k, vals => [$e1, $e2] };
+            $ok = $self->_deep_check($e1, $e2);
+            pop @Data_Stack if $ok;
+    
+            last unless $ok;
         }
-        elsif( $type eq 'ARRAY' ) {
-            $var .= "->" unless $did_arrow++;
-            $var .= "[$idx]";
+    
+        return $ok;
+    }
+    
+    sub _format_stack {
+        my $self = shift;
+        my @Stack = @_;
+    
+        my $var = '$FOO';
+        my $did_arrow = 0;
+        foreach my $entry (@Stack) {
+            my $type = $entry->{type} || '';
+            my $idx  = $entry->{'idx'};
+            if( $type eq 'HASH' ) {
+                $var .= "->" unless $did_arrow++;
+                $var .= "{$idx}";
+            }
+            elsif( $type eq 'ARRAY' ) {
+                $var .= "->" unless $did_arrow++;
+                $var .= "[$idx]";
+            }
+            elsif( $type eq 'REF' ) {
+                $var = "\${$var}";
+            }
         }
-        elsif( $type eq 'REF' ) {
-            $var = "\${$var}";
+    
+        my @vals = @{$Stack[-1]{vals}}[0,1];
+    
+        my @vars = ();
+        ($vars[0] = $var) =~ s/\$FOO/  \$a/;
+        ($vars[1] = $var) =~ s/\$FOO/  \$b/;
+    
+        my $out = "Structures begin differing at:\n";
+        foreach my $idx (0..$#vals) {
+            my $val = $vals[$idx];
+            $vals[$idx] = !defined $val ? 'undef' :
+                          $val eq $DNE  ? 'Does not exist'
+                                        : "'$val'";
+        }
+    
+        $out .= "$vars[0] = $vals[0]\n";
+        $out .= "$vars[1] = $vals[1]";
+    
+        return $out;
+    }
+    
+    BEGIN { $INC{'Test/Unit/TestCase.pm'} = __FILE__; }
+}    
+    
+{    
+    package Test::Unit::Result;
+    our $VERSION = $Test::Unit::Lite::VERSION;
+    
+    sub new {
+        my ($class) = @_;
+        my $self = {
+            'messages' => [],
+            'errors'   => 0,
+            'failures' => 0,
+            'passes'   => 0,
+        };
+    
+        return bless $self => $class;
+    }
+    
+    sub messages {
+        my ($self) = @_;
+        return $self->{messages};
+    }
+    
+    sub errors {
+        my ($self) = @_;
+        return $self->{errors};
+    }
+    
+    sub failures {
+        my ($self) = @_;
+        return $self->{failures};
+    }
+    
+    sub passes {
+        my ($self) = @_;
+        return $self->{passes};
+    }
+    
+    sub add_error {
+        my ($self, $test, $message, $runner) = @_;
+        $self->{errors}++;
+        my $result = {test => $test, type => 'ERROR', message => $message};
+        push @{$self->messages}, $result;
+        $runner->print_error($result) if defined $runner;
+    }
+    
+    sub add_failure {
+        my ($self, $test, $message, $runner) = @_;
+        $self->{failures}++;
+        my $result = {test => $test, type => 'FAILURE', message => $message};
+        push @{$self->messages}, $result;
+        $runner->print_failure($result) if defined $runner;
+    }
+    
+    sub add_pass {
+        my ($self, $test, $message, $runner) = @_;
+        $self->{passes}++;
+        my $result = {test => $test, type => 'PASS', message => $message};
+        push @{$self->messages}, $result;
+        $runner->print_pass($result) if defined $runner;
+    }
+    
+    BEGIN { $INC{'Test/Unit/Result.pm'} = __FILE__; }
+}    
+    
+{    
+    package Test::Unit::TestSuite;
+    our $VERSION = $Test::Unit::Lite::VERSION;
+    
+    sub empty_new {
+        my ($class, $name) = @_;
+        my $self = {
+            'name' => defined $name ? $name : 'Test suite',
+            'units' => [],
+        };
+    
+        return bless $self => $class;
+    }
+    
+    sub new {
+        my ($class, $test) = @_;
+    
+        my $self = {
+            'name' => 'Test suite',
+            'units' => [],
+        };
+    
+        if (defined $test and not ref $test) {
+            # untaint $test
+            $test =~ /([A-Za-z0-9:-]*)/;
+            $test = $1;
+            eval "use $test;";
+            die if $@;
+        }
+        elsif (not defined $test) {
+            $test = $class;
+        }
+    
+        if (defined $test and $test->isa('Test::Unit::TestSuite')) {
+            $class = ref $test ? ref $test : $test;
+            $self->{name} = $test->name if ref $test;
+            $self->{units} = $test->units if ref $test;
+        }
+        elsif (defined $test and $test->isa('Test::Unit::TestCase')) {
+            $class = ref $test ? ref $test : $test;
+            $self->{units} = [ $test ];
+        }
+        else {
+            require Carp;
+            Carp::croak(sprintf("usage: %s->new([CLASSNAME | TEST])\n", __PACKAGE__));
+        }
+    
+        return bless $self => $class;
+    }
+    
+    sub name {
+        return $_[0]->{name};
+    }
+    
+    sub units {
+        return $_[0]->{units};
+    }
+    
+    sub add_test {
+        my ($self, $unit) = @_;
+    
+        if (not ref $unit) {
+            # untaint $unit
+            $unit =~ /([A-Za-z0-9:-]*)/;
+            $unit = $1;
+            eval "use $unit;";
+            die if $@;
+            return unless $unit->isa('Test::Unit::TestCase');
+        }
+    
+        return push @{ $self->{units} }, ref $unit ? $unit : $unit->new;
+    }
+    
+    sub count_test_cases {
+        my ($self) = @_;
+    
+        my $plan = 0;
+    
+        foreach my $unit (@{ $self->units }) {
+            $plan += scalar @{ $unit->list_tests };
+        }
+        return $plan;
+    }
+    
+    sub run {
+        my ($self, $result, $runner) = @_;
+    
+        die "Undefined result object" unless defined $result;
+    
+        foreach my $unit (@{ $self->units }) {
+            foreach my $test (@{ $unit->list_tests }) {
+                my $unit_test = (ref $unit ? ref $unit : $unit) . '::' . $test;
+                my $add_what;
+                eval {
+                    $unit->set_up;
+                    eval {
+                        $unit->$test;
+                    };
+                    my $e = $@;
+                    $unit->tear_down;
+                    if ($e) {
+                        $add_what = 'add_failure';
+                        die $e;
+                    }
+                    $add_what = 'add_pass';
+                };
+                if ($@ and not $add_what) {
+                    $add_what = 'add_error';
+                }
+                $result->$add_what($unit_test, "$@", $runner);
+            }
+        }
+        return;
+    }
+    
+    BEGIN { $INC{'Test/Unit/TestSuite.pm'} = __FILE__; }
+}    
+    
+{    
+    package Test::Unit::TestRunner;
+    our $VERSION = $Test::Unit::Lite::VERSION;
+    
+    sub new {
+        my ($class, $fh_out, $fh_err) = @_;
+        $fh_out = \*STDOUT unless defined $fh_out;
+        $fh_err = \*STDERR unless defined $fh_err;
+        _autoflush($fh_out);
+        _autoflush($fh_err);
+        my $self = {
+            'suite'  => undef,
+            'fh_out' => $fh_out,
+            'fh_err' => $fh_err,
+        };
+        return bless $self => $class;
+    }
+    
+    sub fh_out {
+        my ($self) = @_;
+        return $self->{fh_out};
+    }
+    
+    sub fh_err {
+        my ($self) = @_;
+        return $self->{fh_err};
+    }
+    
+    sub result {
+        my ($self) = @_;
+        return $self->{result};
+    }
+    
+    sub _autoflush {
+        my ($fh) = @_;
+        my $old_fh = select $fh;
+        $| = 1;
+        select $old_fh;
+    }
+    
+    sub suite {
+        my ($self) = @_;
+        return $self->{suite};
+    }
+    
+    sub print_header {
+    }
+    
+    sub print_error {
+        my ($self, $result) = @_;
+        print { $self->fh_out } "E";
+    }
+    
+    sub print_failure {
+        my ($self, $result) = @_;
+        print { $self->fh_out } "F";
+    }
+    
+    sub print_pass {
+        my ($self, $result) = @_;
+        print { $self->fh_out } ".";
+    }
+    
+    sub print_footer {
+        my ($self, $result) = @_;
+        printf { $self->fh_out } "\nTests run: %d", $self->suite->count_test_cases;
+        if ($result->errors) {
+            printf { $self->fh_out } ", Errors: %d", $result->errors;
+        }
+        if ($result->failures) {
+            printf { $self->fh_out } ", Failures: %d", $result->failures;
+        }
+        print { $self->fh_out } "\n";
+        if ($result->errors) {
+            print { $self->fh_out } "\nERRORS!!!\n\n";
+            foreach my $message (@{ $result->messages }) {
+                if ($message->{type} eq 'ERROR') {
+                    printf { $self->fh_out } "%s\n%s:\n\n%s\n",
+                                             '-' x 78,
+                                             $message->{test},
+                                             $message->{message};
+                }
+            }
+            printf { $self->fh_out } "%s\n", '-' x 78;
+        }
+        if ($result->failures) {
+            print { $self->fh_out } "\nFAILURES!!!\n\n";
+            foreach my $message (@{ $result->messages }) {
+                if ($message->{type} eq 'FAILURE') {
+                    printf { $self->fh_out } "%s\n%s:\n\n%s\n",
+                                             '-' x 78,
+                                             $message->{test},
+                                             $message->{message};
+                }
+            }
+            printf { $self->fh_out } "%s\n", '-' x 78;
         }
     }
-
-    my @vals = @{$Stack[-1]{vals}}[0,1];
-
-    my @vars = ();
-    ($vars[0] = $var) =~ s/\$FOO/  \$a/;
-    ($vars[1] = $var) =~ s/\$FOO/  \$b/;
-
-    my $out = "Structures begin differing at:\n";
-    foreach my $idx (0..$#vals) {
-        my $val = $vals[$idx];
-        $vals[$idx] = !defined $val ? 'undef' :
-                      $val eq $DNE  ? 'Does not exist'
-                                    : "'$val'";
-    }
-
-    $out .= "$vars[0] = $vals[0]\n";
-    $out .= "$vars[1] = $vals[1]";
-
-    return $out;
-}
-
-BEGIN { $INC{'Test/Unit/TestCase.pm'} = __FILE__; }
-
-
-
-package Test::Unit::Result;
-our $VERSION = $Test::Unit::Lite::VERSION;
-
-sub new {
-    my ($class) = @_;
-    my $self = {
-        'messages' => [],
-        'errors'   => 0,
-        'failures' => 0,
-        'passes'   => 0,
-    };
-
-    return bless $self => $class;
-}
-
-sub messages {
-    my ($self) = @_;
-    return $self->{messages};
-}
-
-sub errors {
-    my ($self) = @_;
-    return $self->{errors};
-}
-
-sub failures {
-    my ($self) = @_;
-    return $self->{failures};
-}
-
-sub passes {
-    my ($self) = @_;
-    return $self->{passes};
-}
-
-sub add_error {
-    my ($self, $test, $message, $runner) = @_;
-    $self->{errors}++;
-    my $result = {test => $test, type => 'ERROR', message => $message};
-    push @{$self->messages}, $result;
-    $runner->print_error($result) if defined $runner;
-}
-
-sub add_failure {
-    my ($self, $test, $message, $runner) = @_;
-    $self->{failures}++;
-    my $result = {test => $test, type => 'FAILURE', message => $message};
-    push @{$self->messages}, $result;
-    $runner->print_failure($result) if defined $runner;
-}
-
-sub add_pass {
-    my ($self, $test, $message, $runner) = @_;
-    $self->{passes}++;
-    my $result = {test => $test, type => 'PASS', message => $message};
-    push @{$self->messages}, $result;
-    $runner->print_pass($result) if defined $runner;
-}
-
-BEGIN { $INC{'Test/Unit/Result.pm'} = __FILE__; }
-
-
-
-package Test::Unit::TestSuite;
-our $VERSION = $Test::Unit::Lite::VERSION;
-
-sub empty_new {
-    my ($class, $name) = @_;
-    my $self = {
-        'name' => defined $name ? $name : 'Test suite',
-        'units' => [],
-    };
-
-    return bless $self => $class;
-}
-
-sub new {
-    my ($class, $test) = @_;
-
-    my $self = {
-        'name' => 'Test suite',
-        'units' => [],
-    };
-
-    if (defined $test and not ref $test) {
+    
+    sub start {
+        my ($self, $test) = @_;
+    
+        my $result = Test::Unit::Result->new;
+    
         # untaint $test
         $test =~ /([A-Za-z0-9:-]*)/;
         $test = $1;
         eval "use $test;";
         die if $@;
-    }
-    elsif (not defined $test) {
-        $test = $class;
-    }
-
-    if (defined $test and $test->isa('Test::Unit::TestSuite')) {
-        $class = ref $test ? ref $test : $test;
-        $self->{name} = $test->name if ref $test;
-        $self->{units} = $test->units if ref $test;
-    }
-    elsif (defined $test and $test->isa('Test::Unit::TestCase')) {
-        $class = ref $test ? ref $test : $test;
-        $self->{units} = [ $test ];
-    }
-    else {
-        require Carp;
-        Carp::croak(sprintf("usage: %s->new([CLASSNAME | TEST])\n", __PACKAGE__));
-    }
-
-    return bless $self => $class;
-}
-
-sub name {
-    return $_[0]->{name};
-}
-
-sub units {
-    return $_[0]->{units};
-}
-
-sub add_test {
-    my ($self, $unit) = @_;
-
-    if (not ref $unit) {
-        # untaint $unit
-        $unit =~ /([A-Za-z0-9:-]*)/;
-        $unit = $1;
-        eval "use $unit;";
-        die if $@;
-        return unless $unit->isa('Test::Unit::TestCase');
-    }
-
-    return push @{ $self->{units} }, ref $unit ? $unit : $unit->new;
-}
-
-sub count_test_cases {
-    my ($self) = @_;
-
-    my $plan = 0;
-
-    foreach my $unit (@{ $self->units }) {
-        $plan += scalar @{ $unit->list_tests };
-    }
-    return $plan;
-}
-
-sub run {
-    my ($self, $result, $runner) = @_;
-
-    die "Undefined result object" unless defined $result;
-
-    foreach my $unit (@{ $self->units }) {
-        foreach my $test (@{ $unit->list_tests }) {
-            my $unit_test = (ref $unit ? ref $unit : $unit) . '::' . $test;
-            my $add_what;
-            eval {
-                $unit->set_up;
-                eval {
-                    $unit->$test;
-                };
-                my $e = $@;
-                $unit->tear_down;
-                if ($e) {
-                    $add_what = 'add_failure';
-                    die $e;
-                }
-                $add_what = 'add_pass';
-            };
-            if ($@ and not $add_what) {
-                $add_what = 'add_error';
-            }
-            $result->$add_what($unit_test, "$@", $runner);
+    
+        if ($test->isa('Test::Unit::TestSuite')) {
+            $self->{suite} = $test->suite;
         }
-    }
-    return;
-}
-
-BEGIN { $INC{'Test/Unit/TestSuite.pm'} = __FILE__; }
-
-
-
-package Test::Unit::TestRunner;
-our $VERSION = $Test::Unit::Lite::VERSION;
-
-sub new {
-    my ($class, $fh_out, $fh_err) = @_;
-    $fh_out = \*STDOUT unless defined $fh_out;
-    $fh_err = \*STDERR unless defined $fh_err;
-    _autoflush($fh_out);
-    _autoflush($fh_err);
-    my $self = {
-        'suite'  => undef,
-        'fh_out' => $fh_out,
-        'fh_err' => $fh_err,
-    };
-    return bless $self => $class;
-}
-
-sub fh_out {
-    my ($self) = @_;
-    return $self->{fh_out};
-}
-
-sub fh_err {
-    my ($self) = @_;
-    return $self->{fh_err};
-}
-
-sub result {
-    my ($self) = @_;
-    return $self->{result};
-}
-
-sub _autoflush {
-    my ($fh) = @_;
-    my $old_fh = select $fh;
-    $| = 1;
-    select $old_fh;
-}
-
-sub suite {
-    my ($self) = @_;
-    return $self->{suite};
-}
-
-sub print_header {
-}
-
-sub print_error {
-    my ($self, $result) = @_;
-    print { $self->fh_out } "E";
-}
-
-sub print_failure {
-    my ($self, $result) = @_;
-    print { $self->fh_out } "F";
-}
-
-sub print_pass {
-    my ($self, $result) = @_;
-    print { $self->fh_out } ".";
-}
-
-sub print_footer {
-    my ($self, $result) = @_;
-    printf { $self->fh_out } "\nTests run: %d", $self->suite->count_test_cases;
-    if ($result->errors) {
-        printf { $self->fh_out } ", Errors: %d", $result->errors;
-    }
-    if ($result->failures) {
-        printf { $self->fh_out } ", Failures: %d", $result->failures;
-    }
-    print { $self->fh_out } "\n";
-    if ($result->errors) {
-        print { $self->fh_out } "\nERRORS!!!\n\n";
-        foreach my $message (@{ $result->messages }) {
-            if ($message->{type} eq 'ERROR') {
-                printf { $self->fh_out } "%s\n%s:\n\n%s\n",
-                                         '-' x 78,
-                                         $message->{test},
-                                         $message->{message};
-            }
+        elsif ($test->isa('Test::Unit::TestCase')) {
+            $self->{suite} = Test::Unit::TestSuite->empty_new;
+            $self->suite->add_test($test);
         }
-        printf { $self->fh_out } "%s\n", '-' x 78;
-    }
-    if ($result->failures) {
-        print { $self->fh_out } "\nFAILURES!!!\n\n";
-        foreach my $message (@{ $result->messages }) {
-            if ($message->{type} eq 'FAILURE') {
-                printf { $self->fh_out } "%s\n%s:\n\n%s\n",
-                                         '-' x 78,
-                                         $message->{test},
-                                         $message->{message};
-            }
+        else {
+            die "Unknown test $test\n";
         }
-        printf { $self->fh_out } "%s\n", '-' x 78;
+    
+        $self->print_header;
+        $self->suite->run($result, $self);
+        $self->print_footer($result);
     }
-}
-
-sub start {
-    my ($self, $test) = @_;
-
-    my $result = Test::Unit::Result->new;
-
-    # untaint $test
-    $test =~ /([A-Za-z0-9:-]*)/;
-    $test = $1;
-    eval "use $test;";
-    die if $@;
-
-    if ($test->isa('Test::Unit::TestSuite')) {
-        $self->{suite} = $test->suite;
+    
+    BEGIN { $INC{'Test/Unit/TestRunner.pm'} = __FILE__; }
+}    
+    
+{    
+    package Test::Unit::HarnessUnit;
+    our $VERSION = $Test::Unit::Lite::VERSION;
+    
+    use base 'Test::Unit::TestRunner';
+    
+    sub print_header {
+        my ($self) = @_;
+        print { $self->fh_out } "STARTING TEST RUN\n";
+        printf { $self->fh_out } "1..%d\n", $self->suite->count_test_cases;
     }
-    elsif ($test->isa('Test::Unit::TestCase')) {
-        $self->{suite} = Test::Unit::TestSuite->empty_new;
-        $self->suite->add_test($test);
+    
+    sub print_error {
+        my ($self, $result) = @_;
+        printf { $self->fh_out } "not ok %s %s\n", $result->{type}, $result->{test};
+        print { $self->fh_err } join("\n# ", split /\n/, "# " . $result->{message}), "\n";
     }
-    else {
-        die "Unknown test $test\n";
+    
+    sub print_failure {
+        my ($self, $result) = @_;
+        printf { $self->fh_out } "not ok %s %s\n", $result->{type}, $result->{test};
+        print { $self->fh_err } join("\n# ", split /\n/, "# " . $result->{message}), "\n";
     }
-
-    $self->print_header;
-    $self->suite->run($result, $self);
-    $self->print_footer($result);
+    
+    sub print_pass {
+        my ($self, $result) = @_;
+        printf { $self->fh_out } "ok %s %s\n", $result->{type}, $result->{test};
+    }
+    
+    sub print_footer {
+    }
+    
+    BEGIN { $INC{'Test/Unit/HarnessUnit.pm'} = __FILE__; }
+}    
+    
+{    
+    package Test::Unit::Debug;
+    our $VERSION = $Test::Unit::Lite::VERSION;
+    
+    BEGIN { $INC{'Test/Unit/Debug.pm'} = __FILE__; }
+}    
+    
+{    
+    package Test::Unit::Lite::AllTests;
+    our $VERSION = $Test::Unit::Lite::VERSION;
+    
+    use base 'Test::Unit::TestSuite';
+    
+    use Cwd ();
+    use File::Find ();
+    use File::Basename ();
+    use File::Spec ();
+    
+    sub suite {
+        my $class = shift;
+        my $suite = Test::Unit::TestSuite->empty_new('All Tests');
+    
+        my $cwd = ${^TAINT} ? do { local $_=Cwd::getcwd; /(.*)/; $1 } : '.';
+        my $dir = File::Spec->catdir($cwd, 't', 'tlib');
+        my $depth = scalar File::Spec->splitdir($dir);
+    
+        push @INC, $dir;
+    
+        File::Find::find({
+            wanted => sub {
+                my $path = File::Spec->canonpath($File::Find::name);
+                return unless $path =~ s/(Test)\.pm$/$1/;
+                my @path = File::Spec->splitdir($path);
+                splice @path, 0, $depth;
+                return unless scalar @path > 0;
+                my $class = join '::', @path;
+                return unless $class;
+                return if $class =~ /^Test::Unit::/;
+                return if @ARGV and $class !~ $ARGV[0];
+                $suite->add_test($class);
+            },
+            no_chdir => 1,
+        }, $dir || '.');
+    
+        return $suite;
+    }
+    
+    BEGIN { $INC{'Test/Unit/Lite/AllTests.pm'} = __FILE__; }
 }
 
-BEGIN { $INC{'Test/Unit/TestRunner.pm'} = __FILE__; }
-
-
-
-package Test::Unit::HarnessUnit;
-our $VERSION = $Test::Unit::Lite::VERSION;
-
-use base 'Test::Unit::TestRunner';
-
-sub print_header {
-    my ($self) = @_;
-    print { $self->fh_out } "STARTING TEST RUN\n";
-    printf { $self->fh_out } "1..%d\n", $self->suite->count_test_cases;
-}
-
-sub print_error {
-    my ($self, $result) = @_;
-    printf { $self->fh_out } "not ok %s %s\n", $result->{type}, $result->{test};
-    print { $self->fh_err } join("\n# ", split /\n/, "# " . $result->{message}), "\n";
-}
-
-sub print_failure {
-    my ($self, $result) = @_;
-    printf { $self->fh_out } "not ok %s %s\n", $result->{type}, $result->{test};
-    print { $self->fh_err } join("\n# ", split /\n/, "# " . $result->{message}), "\n";
-}
-
-sub print_pass {
-    my ($self, $result) = @_;
-    printf { $self->fh_out } "ok %s %s\n", $result->{type}, $result->{test};
-}
-
-sub print_footer {
-}
-
-BEGIN { $INC{'Test/Unit/HarnessUnit.pm'} = __FILE__; }
-
-
-
-package Test::Unit::Debug;
-our $VERSION = $Test::Unit::Lite::VERSION;
-
-BEGIN { $INC{'Test/Unit/Debug.pm'} = __FILE__; }
-
-
-
-package Test::Unit::Lite::AllTests;
-our $VERSION = $Test::Unit::Lite::VERSION;
-
-use base 'Test::Unit::TestSuite';
-
-use Cwd ();
-use File::Find ();
-use File::Basename ();
-use File::Spec ();
-
-sub suite {
-    my $class = shift;
-    my $suite = Test::Unit::TestSuite->empty_new('All Tests');
-
-    my $cwd = ${^TAINT} ? do { local $_=Cwd::getcwd; /(.*)/; $1 } : '.';
-    my $dir = File::Spec->catdir($cwd, 't', 'tlib');
-    my $depth = scalar File::Spec->splitdir($dir);
-
-    push @INC, $dir;
-
-    File::Find::find({
-        wanted => sub {
-            my $path = File::Spec->canonpath($File::Find::name);
-            return unless $path =~ s/(Test)\.pm$/$1/;
-            my @path = File::Spec->splitdir($path);
-            splice @path, 0, $depth;
-            return unless scalar @path > 0;
-            my $class = join '::', @path;
-            return unless $class;
-            return if $class =~ /^Test::Unit::/;
-            return if @ARGV and $class !~ $ARGV[0];
-            $suite->add_test($class);
-        },
-        no_chdir => 1,
-    }, $dir || '.');
-
-    return $suite;
-}
-
-BEGIN { $INC{'Test/Unit/Lite/AllTests.pm'} = __FILE__; }
-
-
-
-package Test::Unit::Lite;
 
 1;
 
@@ -860,12 +858,12 @@ The default constructor which just bless an empty anonymous hash reference.
 =item set_up
 
 This method is called at the start of each test unit processing.  It is empty
-method and can be overrided in derived class.
+method and can be overridden in derived class.
 
 =item tear_down
 
 This method is called at the end of each test unit processing.  It is empty
-method and can be overrided in derived class.
+method and can be overridden in derived class.
 
 =item list_tests
 
@@ -991,7 +989,7 @@ Called before running test suite.
 
 =item print_error
 
-Called after error was occured on C<set_up> or C<tear_down> method.
+Called after error was occurred on C<set_up> or C<tear_down> method.
 
 =item print_failure
 
