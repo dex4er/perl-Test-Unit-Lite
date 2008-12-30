@@ -9,7 +9,6 @@ META.yml
 README
 t/all_tests.t
 t/all_tests_tainted.t
-t/cover.sh
 t/test.pl
 t/test_tainted.pl
 t/tlib/AssertTest.pm
@@ -36,7 +35,11 @@ t/tlib/SetUpTearDownTest.pm
 t/tlib/SuccessTest.pm
 t/tlib/TestObject.pm
 t/tlib/WillDie.pm
+xt/copyright.t
+xt/cover.sh
+xt/distribution.t
 xt/kwalitee.t
 xt/minimumversion.t
-xt/pod.t
 xt/pod_coverage.t
+xt/pod_spell.xt
+xt/pod_syntax.t
