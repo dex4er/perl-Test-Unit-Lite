@@ -12,8 +12,10 @@ BEGIN {
     chdir '..' or die "$!";
 };
 
+use lib 'lib', 'inc';
+
 use Test::Unit::Lite;
 
-local $SIG{__WARN__} = sub { require Carp; Carp::confess("Warning: $_[0]") };
+local $SIG{__WARN__} = sub { require Carp; Carp::confess("Warning: ", @_) };
 
 all_tests;

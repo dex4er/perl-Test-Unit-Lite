@@ -149,6 +149,7 @@ sub all_tests {
         $list_base_tests = sub {
             my ($class) = @_;
             foreach my $isa (@{ *{ Symbol::qualify_to_ref("${class}::ISA") } }) {
+                next unless $isa->isa(__PACKAGE__);
                 $list_base_tests->($isa) unless $seen_isa{$isa};
                 $seen_isa{$isa} = 1;
                 push @tests, grep { /^test_/ } keys %{ *{ Symbol::qualify_to_ref("${class}::") } };
