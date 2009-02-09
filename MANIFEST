@@ -43,3 +43,4 @@ xt/minimumversion.t
 xt/pod_coverage.t
 xt/pod_spell.xt
 xt/pod_syntax.t
+LICENSE
