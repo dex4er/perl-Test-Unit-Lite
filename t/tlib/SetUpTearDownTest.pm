@@ -3,6 +3,7 @@ package SetUpTearDownTest;
 use strict;
 use warnings;
 
+use Test::Unit::Lite;
 use base 'Test::Unit::TestCase';
 
 my $a;

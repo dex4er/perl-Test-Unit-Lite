@@ -5,6 +5,7 @@ package InheritedSuite::TestNamesTest;
 use strict;
 use warnings;
 
+use Test::Unit::Lite;
 use base 'Test::Unit::TestCase';
 
 use InheritedSuite::Simple;

@@ -4,6 +4,7 @@ use warnings;
 
 # Test class used in SuiteTest
 
+use OneTestCaseTest;
 use base qw(OneTestCaseTest);
 
 sub new {

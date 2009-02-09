@@ -1,10 +1,11 @@
-#!/usr/bin/perl -T
+#!/usr/bin/perl
 
 use 5.006;
-BEGIN { if ($] < 5.008) { print "Perl is too old\n"; exit 0 } }
 
 use strict;
 use warnings;
+
+use Taint::Runtime 'enable';
 
 use File::Basename;
 use File::Spec;
@@ -23,6 +24,6 @@ BEGIN {
 
 use Test::Unit::Lite;
 
-local $SIG{__WARN__} = sub { require Carp; Carp::confess("Warning: $_[0]") };
+local $SIG{__WARN__} = sub { require Carp; Carp::confess("Warning: ", @_) };
 
 all_tests;

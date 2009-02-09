@@ -36,7 +36,7 @@ t/tlib/SuccessTest.pm
 t/tlib/TestObject.pm
 t/tlib/WillDie.pm
 xt/copyright.t
-xt/cover.sh
+xt/cover.pl
 xt/distribution.t
 xt/kwalitee.t
 xt/minimumversion.t

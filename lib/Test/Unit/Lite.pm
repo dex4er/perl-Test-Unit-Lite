@@ -71,7 +71,7 @@ use 5.006;
 use strict;
 use warnings;
 
-our $VERSION = 0.11_01;
+our $VERSION = 0.12;
 
 use Carp ();
 use File::Spec ();
@@ -82,7 +82,8 @@ use Symbol ();
 
 
 # Can't use Exporter 'import'. Compatibility with Perl 5.6
-use Exporter (); *import = \&Exporter::import;
+use Exporter (); 
+BEGIN { *import = \&Exporter::import };
 our @EXPORT = qw{ bundle all_tests };
 
 
@@ -117,6 +118,7 @@ sub all_tests {
 
 {
     package Test::Unit::TestCase;
+    use Carp ();
     our $VERSION = $Test::Unit::Lite::VERSION;
     
     our %Seen_Refs = ();
@@ -160,7 +162,8 @@ sub all_tests {
     
         my $message = "$file:$line - $test($unit)\n$default_message\n$custom_message";
         chomp $message;
-    
+
+        no warnings 'once';    
         local $Carp::Internal{'Test::Unit::TestCase'} = 1;
         Carp::confess("$message\n");
     }

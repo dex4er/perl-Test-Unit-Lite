@@ -1,4 +1,4 @@
-#!/usr/bin/env perl
+#!/usr/bin/perl
 
 use strict;
 use warnings;
@@ -67,7 +67,7 @@ sub check_file {
     my @copyright_years = $content =~ m<
                                        (?: copyright(?:\s\(c\))? | \(c\) )
                                        \s*
-                                       (?: \d{4} \\? [-,]\s*)?
+                                       (?: \d{4} \\? [-,]\s*)*
                                        (\d{4})
                                        >gixms;
     if (0 < grep {$_ ne $this_year} @copyright_years) {
