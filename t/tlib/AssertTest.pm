@@ -19,18 +19,18 @@ sub test_assert_equals {
 sub test_numericness {
     my $self = shift;
     my %tests = (
-        1	=> '1',            # num
-	0	=> '0',            # num
-	'15e7'	=> '150000000',    # num
-	'15E7'	=> '150000000',    # num
-	"not 0"	=> '0',            # str
-	"not 4"	=> '0',            # str
-	"  \n 5E2"	=> '500',  # num
-	"  \t 0E0  "	=> '0',    # num
+        1       => '1',            # num
+        0       => '0',            # num
+        '15e7'  => '150000000',    # num
+        '15E7'  => '150000000',    # num
+        "not 0" => '0',            # str
+        "not 4" => '0',            # str
+        "  \n 5E2"      => '500',  # num
+        "  \t 0E0  "    => '0',    # num
     );
     foreach my $str (keys %tests) {
-	my $expect = $tests{$str};
-	$self->assert_num_equals($expect, $str);
+        my $expect = $tests{$str};
+        $self->assert_num_equals($expect, $str);
     }
 }
 
@@ -79,7 +79,7 @@ sub test_assert_str_equals {
           [ __LINE__, sub { $self->assert_str_equals(undef, 'foo') } ],
         "expected '', got undef" =>
           [ __LINE__, sub { $self->assert_str_equals('', undef)    } ],
-        "expected 'foo', got undef" => 
+        "expected 'foo', got undef" =>
           [ __LINE__, sub { $self->assert_str_equals('foo', undef) } ],
         "expected '', got '0'" =>
           [ __LINE__, sub { $self->assert_str_equals('', 0)        } ],
@@ -95,7 +95,7 @@ sub test_assert_str_equals {
           [ __LINE__, sub { $self->assert_str_equals('-0', 0)      } ],
         "expected 'foo', got 'bar'" =>
           [ __LINE__, sub { $self->assert_str_equals('foo', 'bar') } ],
-        
+
     );
 }
 
@@ -107,7 +107,7 @@ sub test_assert_matches {
             => [ __LINE__, sub { $self->assert_matches(1, 2) } ]
     );
 }
-    
+
 sub test_assert_does_not_match {
     my $self = shift;
     $self->assert_does_not_match(qr/ob/, 'fooBar');
@@ -116,7 +116,7 @@ sub test_assert_does_not_match {
             => [ __LINE__, sub { $self->assert_does_not_match(1, 2) } ]
     );
 }
-    
+
 sub test_assert_equals_null {
     my $self = shift;
     $self->assert_equals(undef, undef);
@@ -161,8 +161,8 @@ sub test_success_assert_not_equals {
     $self->assert_not_equals('string', 1);
     $self->assert_not_equals(1, 'string');
     $self->assert_not_equals('string', 0);
-    # $self->assert_not_equals(0,'string'); # Numeric comparison done here.. 
-    # $self->assert_not_equals(0, '');      # Numeric comparison done here.. 
+    # $self->assert_not_equals(0,'string'); # Numeric comparison done here..
+    # $self->assert_not_equals(0, '');      # Numeric comparison done here..
     $self->assert_not_equals('', 0);
     $self->assert_not_equals(undef, 0);
     $self->assert_not_equals(0, undef);
@@ -209,8 +209,8 @@ sub test_fail_assert_not_null {
           => [ __LINE__, sub { $self->assert_not_null(undef) } ],
         '<undef> unexpected'
           => [ __LINE__, sub { $self->assert_not_null() } ],
-	  # nb. $self->assert_not_null(@emptylist, "message") is not
-	  # going to do what you expected!
+          # nb. $self->assert_not_null(@emptylist, "message") is not
+          # going to do what you expected!
         qr/Weirdness/
           => [ __LINE__, sub { $self->assert_not_null(undef, 'Weirdness') } ]
     );
@@ -272,40 +272,40 @@ sub test_assert_deep_equals {
 
     my %families; # key=test-purpose, value=assorted circular structures
     foreach my $key (qw(orig copy bad_copy)) {
-	my %family = ( john => { name => 'John Doe',
-				 spouse => undef,
-				 children => [],
-			       },
-		       jane => { name   => 'Jane Doe',
-				 spouse => undef,
-				 children => [],
-			       },
-		       baby => { name => 'Baby Doll',
-#				 spouse => undef,
-				 children => [],
-			       },
-		     );
-	$family{john}{spouse} = $family{jane};
-	$family{jane}{spouse} = $family{john};
-	push @{$family{john}{children}}, $family{baby};
-	push @{$family{jane}{children}}, $family{baby};
-	$families{$key} = \%family;
+        my %family = ( john => { name => 'John Doe',
+                                 spouse => undef,
+                                 children => [],
+                               },
+                       jane => { name   => 'Jane Doe',
+                                 spouse => undef,
+                                 children => [],
+                               },
+                       baby => { name => 'Baby Doll',
+#                                spouse => undef,
+                                 children => [],
+                               },
+                     );
+        $family{john}{spouse} = $family{jane};
+        $family{jane}{spouse} = $family{john};
+        push @{$family{john}{children}}, $family{baby};
+        push @{$family{jane}{children}}, $family{baby};
+        $families{$key} = \%family;
     }
     $families{bad_copy}->{jane}{spouse} = $families{bad_copy}->{baby}; # was ->{john}
 
     # Breakage under test is infinite recursion, to memory exhaustion!
     # Jump through hoops to avoid killing people's boxes
     {
-	my $old_isa = \&UNIVERSAL::isa;
-	# Pick on isa() because it'll be called from any deep-ing code
-	local $^W = 0;
-	no warnings 'redefine';
-	local *UNIVERSAL::isa = sub {
-	    die "Giving up on deep recursion for assert_deep_equals"
-	      if defined caller(500);
-	    return $old_isa->(@_);
-	};
-	$self->assert_deep_equals($families{orig}, $families{copy});
+        my $old_isa = \&UNIVERSAL::isa;
+        # Pick on isa() because it'll be called from any deep-ing code
+        local $^W = 0;
+        no warnings 'redefine';
+        local *UNIVERSAL::isa = sub {
+            die "Giving up on deep recursion for assert_deep_equals"
+              if defined caller(500);
+            return $old_isa->(@_);
+        };
+        $self->assert_deep_equals($families{orig}, $families{copy});
     }
 
     my ($H, $H2, $G) = qw(hello hello goodbye);
@@ -318,13 +318,13 @@ sub test_assert_deep_equals {
         'Both arguments were not references' => [ '', 0    ],
          qr/HASH.0x/                         => [ [],      {}      ],
          qr/HASH.0x/                         => [ [1,2],   {1,2}   ],
-	 qr/undef/                           => [ { 'test' => []},
-					      { 'test' => undef } ],
-	 qr/not exist/                       => [ { 'test' => []}, {} ],
-	 qr/ARRAY.0x/                        => [ { 'test' => undef },
-					     { 'test' => []} ],
-	 qr/undef/                           => [ [ '' ], [ undef ] ],
-	 qr/undef/                           => [ [ 'undef' ], [ undef ] ],
+         qr/undef/                           => [ { 'test' => []},
+                                              { 'test' => undef } ],
+         qr/not exist/                       => [ { 'test' => []}, {} ],
+         qr/ARRAY.0x/                        => [ { 'test' => undef },
+                                             { 'test' => []} ],
+         qr/undef/                           => [ [ '' ], [ undef ] ],
+         qr/undef/                           => [ [ 'undef' ], [ undef ] ],
          qr/'3'/                             => [ [1,2],   [1,2,3] ],
          qr/not exist/                       => [ [1,2,3], [1,2]   ],
          qr/'wahhhh'/                        => [
@@ -342,10 +342,10 @@ sub test_assert_deep_equals {
                  },
              }
          ],
-	 qr/not exist/                       => [$families{orig}, $families{bad_copy}], # test may be fragile due to recursion ordering?
-	 qr/'5'/                             => [ [ \$H, 3 ], [ \$H2, 5 ] ],
-	 qr/'goodbye'/                       => [ { world => \$H }, { world => \$G } ],
-	 qr/'goodbye'/                       => [ [ \$H, "world" ], [ \$G, "world" ] ],
+         qr/not exist/                       => [$families{orig}, $families{bad_copy}], # test may be fragile due to recursion ordering?
+         qr/'5'/                             => [ [ \$H, 3 ], [ \$H2, 5 ] ],
+         qr/'goodbye'/                       => [ { world => \$H }, { world => \$G } ],
+         qr/'goodbye'/                       => [ [ \$H, "world" ], [ \$G, "world" ] ],
     );
 
     my @tests = ();
@@ -393,7 +393,7 @@ my %test_hash = (
             { args => ['foo', undef], name => "'foo' ne undef" },
             { args => [undef, 'foo'], name => "undef ne 'foo'" },
             # { args => [0, ''],        name => "0 ne ''"        }, # numeric compare
-            
+
         ],
     },
 );
