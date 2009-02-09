@@ -4,6 +4,8 @@
 ,v$
 \B\.svn\b
 \B\.cvsignore$
+\B\.git\b
+\B\.gitignore$
 
 # Avoid Makemaker generated and utility files.
 \bMakefile$
@@ -19,6 +21,7 @@
 
 # Avoid Devel::Cover generated files
 \bcover_db
+\btmon.out$
 
 # Avoid temp and backup files.
 ~$
@@ -28,17 +31,25 @@
 \#$
 \.#
 \.rej$
+\.diff$
 
 # Avoid OS-specific files/dirs
 #   Mac OSX metadata
 \B\.DS_Store
 #   Mac OSX SMB mount metadata files
 \B\._
+
 # Avoid archives of this distribution
 \.gz$
 \.ppd$
+\.ppmx$
 \.tgz$
 \.deb$
 \bDebian_CPANTS.txt$
 
-\bTest-Unit-Lite-
+# Avoid Eclipse files
+.includepath
+.project
+
+# Avoid distdir
+\d+\.\d+\b

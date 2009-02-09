@@ -2,6 +2,7 @@ Build.PL
 Changes
 eg/README
 lib/Test/Unit/Lite.pm
+LICENSE
 Makefile.PL
 MANIFEST			This list of files
 MANIFEST.SKIP
@@ -23,6 +24,9 @@ t/tlib/BadUnits/WithFailure.pm
 t/tlib/BadUnits/WithFailureSuite.pm
 t/tlib/BadUnitsTest.pm
 t/tlib/ExceptionChecker.pm
+t/tlib/InheritedSuite/BaseTest.pm
+t/tlib/InheritedSuite/DerivedDerivedTest.pm
+t/tlib/InheritedSuite/DerivedTest.pm
 t/tlib/InheritedSuite/OverrideNew.pm
 t/tlib/InheritedSuite/OverrideNewName.pm
 t/tlib/InheritedSuite/Simple.pm
@@ -35,6 +39,7 @@ t/tlib/SetUpTearDownTest.pm
 t/tlib/SuccessTest.pm
 t/tlib/TestObject.pm
 t/tlib/WillDie.pm
+xt/consistent_version_numbers.t
 xt/copyright.t
 xt/cover.pl
 xt/distribution.t
@@ -43,4 +48,3 @@ xt/minimumversion.t
 xt/pod_coverage.t
 xt/pod_spell.xt
 xt/pod_syntax.t
-LICENSE
