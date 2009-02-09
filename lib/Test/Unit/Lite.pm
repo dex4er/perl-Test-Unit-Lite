@@ -594,23 +594,34 @@ sub all_tests {
             foreach my $test (@{ $unit->list_tests }) {
                 my $unit_test = (ref $unit ? ref $unit : $unit) . '::' . $test;
                 my $add_what;
+                my $e = '';
                 eval {
                     $unit->set_up;
+                };
+                if ($@) {
+                    $e = "$@";
+                    $add_what = 'add_error';
+                }
+                else {
                     eval {
                         $unit->$test;
                     };
-                    my $e = $@;
-                    $unit->tear_down;
-                    if ($e) {
+                    if ($@) {
+                        $e = "$@";
                         $add_what = 'add_failure';
-                        die $e;
                     }
-                    $add_what = 'add_pass';
+                    else {
+                        $add_what = 'add_pass';
+                    };
                 };
-                if ($@ and not $add_what) {
+                eval {
+                    $unit->tear_down;
+                };
+                if ($@) {
+                    $e .= "$@";
                     $add_what = 'add_error';
-                }
-                $result->$add_what($unit_test, "$@", $runner);
+                };
+                $result->$add_what($unit_test, $e, $runner);
             }
         }
         return;
