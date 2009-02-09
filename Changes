@@ -1,6 +1,10 @@
 ------------------------------------------------------------------------
 0.12 | Piotr Roszatycki <dexter@debian.org> | 2009-02-09
 
+Changes:
+
+* Method "list_tests" returns methods from own class and base classes.
+
 ------------------------------------------------------------------------
 0.1101 | Piotr Roszatycki <dexter@debian.org> | 2008-12-30
 

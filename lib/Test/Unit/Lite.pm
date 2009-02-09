@@ -68,10 +68,11 @@ source directory for the package distribution.
 
 
 use 5.006;
+
 use strict;
 use warnings;
 
-our $VERSION = 0.12;
+our $VERSION = '0.12';
 
 use Carp ();
 use File::Spec ();
@@ -141,11 +142,22 @@ sub all_tests {
 
         my $class = ref $self || $self;
 
-        my @super_tests = eval { $self->SUPER::list_tests };
-        my @this_tests = grep { /^test_/ } keys %{ *{ Symbol::qualify_to_ref("${class}::") } };
+        my @tests;
 
-        my %tests = map { $_ => 1 } (@super_tests, @this_tests);
-        my @tests = sort keys %tests;
+        my %seen_isa;
+        my $list_base_tests;
+        $list_base_tests = sub {
+            my ($class) = @_;
+            foreach my $isa (@{ *{ Symbol::qualify_to_ref("${class}::ISA") } }) {
+                $list_base_tests->($isa) unless $seen_isa{$isa};
+                $seen_isa{$isa} = 1;
+                push @tests, grep { /^test_/ } keys %{ *{ Symbol::qualify_to_ref("${class}::") } };
+            };
+        };
+        $list_base_tests->($class);
+
+        my %uniq_tests = map { $_ => 1 } @tests;
+        @tests = sort keys %uniq_tests;
 
         return wantarray ? @tests : [ @tests ];
     }
@@ -874,7 +886,7 @@ method and can be overridden in derived class.
 
 =item list_tests
 
-Returns the list of test methods in this class.
+Returns the list of test methods in this class and base classes.
 
 =item fail([MESSAGE])
 
