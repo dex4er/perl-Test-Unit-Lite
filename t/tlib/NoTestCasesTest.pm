@@ -2,6 +2,7 @@ package NoTestCasesTest;
 use strict;
 use warnings;
 
+use Test::Unit::Lite;
 use base qw(Test::Unit::TestCase);
 
 sub new {

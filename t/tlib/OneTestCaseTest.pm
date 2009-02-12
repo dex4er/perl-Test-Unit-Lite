@@ -2,6 +2,7 @@ package OneTestCaseTest;
 
 # Test class used in SuiteTest
 
+use Test::Unit::Lite;
 use base qw(Test::Unit::TestCase);
 
 sub new {

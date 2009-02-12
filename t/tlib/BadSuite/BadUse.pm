@@ -1,5 +1,9 @@
 package BadSuite::BadUse;
 
-use TestSuite::NonExistent;
+eval q{
+
+    use TestSuite::NonExistent;
+
+};
 
 1;

@@ -1,0 +1,72 @@
+This file contains message digests of all files listed in MANIFEST,
+signed via the Module::Signature module, version 0.55.
+
+To verify the content in this distribution, first make sure you have
+Module::Signature installed, then type:
+
+    % cpansign -v
+
+It will check each file's integrity, as well as the signature's
+validity.  If "==> Signature verified OK! <==" is not displayed,
+the distribution may already have been compromised, and you should
+not run its Makefile.PL or Build.PL.
+
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+SHA1 744f27ae85091915f64b4744f3918d4a60923bb4 Build.PL
+SHA1 20ce1864d26952731da3ff1f6f7e6f7fe53c0d2a Changes
+SHA1 74b1c398020b9c1e8849b7982751cb70ecc5de8d LICENSE
+SHA1 eef4fdabc353583b69686b57714bc9bf66eb83f3 MANIFEST
+SHA1 7d9037725a8f8c9c65eff1e091819c215f55c650 MANIFEST.SKIP
+SHA1 0f149c40f2567c23cffae4f81cac15bd429da255 META.yml
+SHA1 208bbdead4e0fb1a03ad0cd2d63ee6b91867e34d Makefile.PL
+SHA1 161e9767904aeda7bbafcb1d595a37e84ae95f78 README
+SHA1 a5b42c5616211189572a48935a55eca59a75c742 eg/README
+SHA1 a4aadd9aa63d180411e25a33df632e15cc0c1dcc lib/Test/Unit/Lite.pm
+SHA1 65196ddb7d86fa6b392f6e711ddc6326bd6decef t/all_tests.t
+SHA1 2a6a6d60e637568de03f4b4c0d22cf544eb955a6 t/all_tests_tainted.t
+SHA1 0b65fef81698ca3ecb87c27aebe02ba593243372 t/test.pl
+SHA1 53a6b9c1e9d2d505e3f26ff07f7175c4cf5b103c t/test_tainted.pl
+SHA1 e50f7a48a4c3edf225764704483ee6c4cc63fe66 t/tlib/AssertTest.pm
+SHA1 e894ae8d9cf8d6d82c7880567171075ec26c5b27 t/tlib/BadSuite/BadUse.pm
+SHA1 4d12d415e7d10344cda3246b821974ed393db520 t/tlib/BadSuite/SyntaxError.pm
+SHA1 34093bc61042f53f8d20f935ad7cae236bf74eb6 t/tlib/BadSuitesTest.pm
+SHA1 a5525fad9989342fa84024cf0d79ff207ee5f0f5 t/tlib/BadUnits/WithErrorOnSetUp.pm
+SHA1 7798765a8acc72c090d0bc9f44007c4566ca388e t/tlib/BadUnits/WithErrorOnSetUpSuite.pm
+SHA1 8a8080a37c98cdb9bcb5e73e21e409c9e736b7b7 t/tlib/BadUnits/WithErrorOnTearDown.pm
+SHA1 4ddf587d98727de6adcb627f99c232b7d37259e9 t/tlib/BadUnits/WithErrorOnTearDownSuite.pm
+SHA1 0a47eb147686621d3703bce8ae9dcdb5445c8f7c t/tlib/BadUnits/WithFailure.pm
+SHA1 d9aa2ee64ce3c76ffaeccdec5be634236d62f042 t/tlib/BadUnits/WithFailureSuite.pm
+SHA1 c3b6297fcb1583a0532700798f76041491eee000 t/tlib/BadUnitsTest.pm
+SHA1 02955567ec0427c82d9a80cbe7bcf091e9fa5a9c t/tlib/ExceptionChecker.pm
+SHA1 a3230c44fb8664a37bd4c962a6ac54b8f60e5765 t/tlib/InheritedSuite/BaseTest.pm
+SHA1 c9a94a7c2c4097deb2fbdd474ae67ab43ba65f0f t/tlib/InheritedSuite/DerivedDerivedTest.pm
+SHA1 5d96c5e4828aa7046f8373d84c7754609a4d6b93 t/tlib/InheritedSuite/DerivedTest.pm
+SHA1 cdf316da142b2d640dde4fadc2622b27d9b027ec t/tlib/InheritedSuite/OverrideNew.pm
+SHA1 a47ceb772f28d9fc045eaf296625bf85266d670b t/tlib/InheritedSuite/OverrideNewName.pm
+SHA1 db48b82d3aacc1885e930a8c3a3bda8f8b16d346 t/tlib/InheritedSuite/Simple.pm
+SHA1 dd0101d63d4b34351019e364ff7afe6e4ea33dd0 t/tlib/InheritedSuite/TestNamesTest.pm
+SHA1 25c11db8cd4dc89fae1ea0f559632a0169422eb3 t/tlib/NoTestCaseClassTest.pm
+SHA1 d3f0f4312dfa2b384a71d13db70417259f37a92e t/tlib/NoTestCasesTest.pm
+SHA1 ae79b05bc34717675b5e1125991bb3d61aa4efb7 t/tlib/OneTestCaseTest.pm
+SHA1 966d19c49e3e4936c9c1c44a9cd4c7238e286791 t/tlib/OverrideTestCaseTest.pm
+SHA1 40708ff1aca3c273aa5761210c08f3f6103dabad t/tlib/SetUpTearDownTest.pm
+SHA1 b3199eaa21558d84ec984eab05dee5ec5e73bdc9 t/tlib/SuccessTest.pm
+SHA1 f7e14bf098983eef41850124fd27015be52a39e7 t/tlib/TestObject.pm
+SHA1 50bb1ccaa6d868e4ae05d7b4bd6052b008fa37b2 t/tlib/WillDie.pm
+SHA1 cd748ade99c6f4613a6a8b2579df4f55af6b9db8 xt/copyright.t
+SHA1 650dccfa9b6f5a98cf731c89041bea8935dbc623 xt/cover.pl
+SHA1 0cc035a7059d85dbe3345dd77ab3bfcb26747eea xt/distribution.t
+SHA1 ce95b12540d6fa64569e97e3bc58142d567a9109 xt/kwalitee.t
+SHA1 6e7f9dde7560793bcb40acc41561e07d163ad6d1 xt/minimumversion.t
+SHA1 775b3ac02805b6d703614f42608732fb43af2a41 xt/pod_coverage.t
+SHA1 a63e40b1be619d4aafa6299951a78d34e7a9825b xt/pod_spell.xt
+SHA1 2c579b58def8daec94f41b628ac81c256faaa2b1 xt/pod_syntax.t
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEARECAAYFAkmUJnAACgkQhMHHe8CxClufDACdGhCkoWCVGrp1f9uSqPYCfXPF
+7u8AoN/XW4PWNSldDIgbh0MZJvGib+/n
+=0OXc
+-----END PGP SIGNATURE-----

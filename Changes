@@ -1,4 +1,12 @@
 ------------------------------------------------------------------------
+0.12 | Piotr Roszatycki <dexter@debian.org> | 2009-02-12
+
+Changes:
+
+* Method "list_tests" returns methods from own class and base classes.
+* Method "tear_down" is called if "set_up" failed too.
+
+------------------------------------------------------------------------
 0.1101 | Piotr Roszatycki <dexter@debian.org> | 2008-12-30
 
 Changes:

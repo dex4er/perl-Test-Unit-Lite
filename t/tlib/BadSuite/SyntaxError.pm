@@ -1,7 +1,11 @@
 package BadSuite::SyntaxError;
 
-sub broken_method {
-    my $self = 
-}
+eval q{
+
+    sub broken_method {
+        my $self = 
+    }
+
+};
 
 1;
