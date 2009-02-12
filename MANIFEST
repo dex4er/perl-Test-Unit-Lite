@@ -39,7 +39,6 @@ t/tlib/SetUpTearDownTest.pm
 t/tlib/SuccessTest.pm
 t/tlib/TestObject.pm
 t/tlib/WillDie.pm
-xt/consistent_version_numbers.t
 xt/copyright.t
 xt/cover.pl
 xt/distribution.t
