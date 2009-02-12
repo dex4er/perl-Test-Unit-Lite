@@ -1133,6 +1133,8 @@ Does not support B<ok>, B<assert>(CODEREF, @ARGS) and B<multi_assert>.
 
 =back
 
+C<Test::Unit::Lite> is compatible with L<Test::Assert> assertion functions.
+
 =head1 EXAMPLES
 
 =head2 t/tlib/SuccessTest.pm
@@ -1215,8 +1217,7 @@ This is perl equivalent of shell command line:
 
 =head1 SEE ALSO
 
-L<Test::Unit>, L<Test::Unit::TestCase>, L<Test::Unit::TestSuite>,
-L<Test::Unit::Assert>, L<Test::Unit::TestRunner>, L<Test::Unit::HarnessUnit>.
+L<Test::Unit>, L<Test::Assert>.
 
 =head1 TESTS
 
@@ -1231,7 +1232,7 @@ If you find the bug or need new feature, please report it.
 
 =head1 AUTHOR
 
-Piotr Roszatycki <dexter@debian.org>
+Piotr Roszatycki <dexter@cpan.org>
 
 =head1 LICENSE
 
