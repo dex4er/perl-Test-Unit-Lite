@@ -926,13 +926,13 @@ operator is used.
 
 =item assert_num_not_equals(ARG1, ARG2 [, MESSAGE])
 
-Force numeric comparition.
+Force numeric comparison.
 
 =item assert_str_equals(ARG1, ARG2 [, MESSAGE])
 
 =item assert_str_not_equals(ARG1, ARG2 [, MESSAGE])
 
-Force string comparition.
+Force string comparison.
 
 =item assert(qr/PATTERN/, ARG [, MESSAGE])
 
