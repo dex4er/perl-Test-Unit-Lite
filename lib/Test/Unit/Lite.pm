@@ -72,7 +72,7 @@ use 5.006;
 use strict;
 use warnings;
 
-our $VERSION = '0.12';
+our $VERSION = '0.1201';
 
 use Carp ();
 use File::Spec ();
@@ -926,13 +926,13 @@ operator is used.
 
 =item assert_num_not_equals(ARG1, ARG2 [, MESSAGE])
 
-Force numeric comparition.
+Force numeric comparison.
 
 =item assert_str_equals(ARG1, ARG2 [, MESSAGE])
 
 =item assert_str_not_equals(ARG1, ARG2 [, MESSAGE])
 
-Force string comparition.
+Force string comparison.
 
 =item assert(qr/PATTERN/, ARG [, MESSAGE])
 
@@ -1224,10 +1224,6 @@ L<Test::Unit>, L<Test::Assert>.
 The L<Test::Unit::Lite> was tested as a L<Test::Unit> replacement for following
 distributions: L<Test::C2FIT>, L<XAO::Base>, L<Exception::Base>.
 
-=head1 BUGS
-
-If you find the bug or need new feature, please report it.
-
 =for readme continue
 
 =head1 AUTHOR
@@ -1236,7 +1232,7 @@ Piotr Roszatycki <dexter@cpan.org>
 
 =head1 LICENSE
 
-Copyright (C) 2007, 2008, 2009 by Piotr Roszatycki E<lt>dexter@debian.orgE<gt>.
+Copyright (c) 2007-2009, 2012 by Piotr Roszatycki <dexter@cpan.org>.
 
 This program is free software; you can redistribute it and/or modify it under
 the same terms as Perl itself.
