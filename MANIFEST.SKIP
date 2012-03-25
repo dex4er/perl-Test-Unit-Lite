@@ -6,6 +6,8 @@
 \B\.cvsignore$
 \B\.git\b
 \B\.gitignore$
+\B\.bzr\b
+\B\.bzrignore$
 
 # Avoid Makemaker generated and utility files.
 \bMakefile$
@@ -18,6 +20,7 @@
 \bBuild$
 \bBuild.bat$
 \b_build
+\bDist.SH$
 
 # Avoid Devel::Cover generated files
 \bcover_db
@@ -45,7 +48,9 @@
 \.ppmx$
 \.tgz$
 \.deb$
+\bdebian
 \bDebian_CPANTS.txt$
+-stamp$
 
 # Avoid Eclipse files
 .includepath
@@ -53,3 +58,5 @@
 
 # Avoid distdir
 \d+\.\d+\b
+^MYMETA.yml$
+^MYMETA\.json$

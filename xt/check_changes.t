@@ -3,6 +3,5 @@
 use strict;
 use warnings;
 
-use Test::More;
-
-use Test::Kwalitee;
+use Test::CheckChanges;
+ok_changes();
