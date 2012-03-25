@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------
 0.1201 | Piotr Roszatycki <dexter@cpan.org> | 2012-03-25
 
-* Package is distributed with Makefile.PL which allows to install without
-  Module::Builder.
+* Repackaged with newer Module::Builder.
 
 ------------------------------------------------------------------------
 0.12 | Piotr Roszatycki <dexter@debian.org> | 2009-02-12
