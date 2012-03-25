@@ -29,7 +29,7 @@ sub check_version {
     # only look at perl scripts, not sh scripts
     return if m{blib/script/}xms && $content !~ m/\A \#![^\r\n]+?perl/xms;
 
-    my @version_lines = $content =~ m/ ( [^\n]* \$VERSION [^\n]* ) /gxms;
+    my @version_lines = $content =~ m/ \s* ( [^\n]* \$VERSION \s* = \s* (?: eval \s* )? ['"]? \d+ [^\n]* ) /gxms; # '
     if (@version_lines == 0) {
        fail($_);
     } # end if
