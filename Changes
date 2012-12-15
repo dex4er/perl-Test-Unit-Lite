@@ -1,4 +1,7 @@
 ------------------------------------------------------------------------
+0.1202  2012-12-15      Piotr Roszatycki <dexter@cpan.org>
+
+------------------------------------------------------------------------
 0.1201  2012-03-25      Piotr Roszatycki <dexter@cpan.org>
 
 * Repackaged with newer Module::Builder.
