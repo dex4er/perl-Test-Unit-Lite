@@ -15,7 +15,7 @@ sub test_isa {
 sub test_list_tests {
     my $self = shift;
     my $list = $self->list_tests;
-    $self->assert_deep_equals( [ qw{ test_base test_derived test_isa test_list_tests } ], $list);   
+    $self->assert_deep_equals( [ qw{ test_base test_derived test_isa test_list_tests } ], $list);
 }
 
 sub test_derived {

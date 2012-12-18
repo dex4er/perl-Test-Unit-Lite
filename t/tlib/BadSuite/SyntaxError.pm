@@ -3,7 +3,7 @@ package BadSuite::SyntaxError;
 eval q{
 
     sub broken_method {
-        my $self = 
+        my $self =
     }
 
 };

@@ -9,10 +9,10 @@ sub check_failures {
         my $expected        = shift @tests;
         my $test_components = shift @tests;
         my ($test_code_line, $test) = @$test_components;
-	eval {
-	    $self->$test();
-	};
-	my $exception = $@;
+        eval {
+            $self->$test();
+        };
+        my $exception = $@;
 
         # Parse the exception message: get number of file source line
         # and last line of message
@@ -23,7 +23,7 @@ sub check_failures {
         if ($exception ne '' and $exception =~ /^.*?:(\d+) - (?:.*?\n)?(.*?)\n at /s) {
             my ($line, $message) = ($1, $2);
 
-            if ($line != $test_code_line or 
+            if ($line != $test_code_line or
                    (ref $expected eq 'Regexp' and $message !~ /$expected/s or
                     ref $expected ne 'Regexp' and $message ne $expected))
             {
