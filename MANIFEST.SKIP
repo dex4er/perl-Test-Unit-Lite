@@ -26,6 +26,9 @@
 \bcover_db
 \btmon.out$
 
+# Avoid Devel::NYTProf generated files
+\bnytprof
+
 # Avoid temp and backup files.
 ~$
 \.tmp$
@@ -53,10 +56,18 @@
 -stamp$
 
 # Avoid Eclipse files
+.cproject
 .includepath
 .project
+.settings
 
 # Avoid distdir
 \d+\.\d+\b
 ^MYMETA.yml$
 ^MYMETA\.json$
+
+# Avoid compiler artefacts
+\bcompilet
+\btest-
+\.exe$
+\.o$

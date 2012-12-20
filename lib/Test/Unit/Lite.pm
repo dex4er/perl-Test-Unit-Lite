@@ -97,8 +97,8 @@ sub bundle {
     my $dst = "inc/Test/Unit/Lite.pm";
 
 
-    my @src = split m"/", $src;
-    my @dst = split m"/", $dst;
+    my @src = split m{/}, $src;
+    my @dst = split m{/}, $dst;
     my $srcfile = File::Spec->catfile(@src);
     my $dstfile = File::Spec->catfile(@dst);
 
@@ -107,7 +107,7 @@ sub bundle {
 
     my $dstdir = File::Basename::dirname($dstfile);
 
-    -d $dstdir or File::Path::mkpath([$dstdir], 0, 0777 & ~umask);
+    -d $dstdir or File::Path::mkpath([$dstdir], 0, oct(777) & ~umask);
 
     File::Copy::cp($srcfile, $dstfile) or die "Cannot copy $srcfile to $dstfile: $!\n";
 }
@@ -225,7 +225,6 @@ sub all_tests {
         if ($arg1 =~ /^[+-]?(\d+\.\d+|\d+\.|\.\d+|\d+)([eE][+-]?\d+)?$/ and
             $arg2 =~ /^[+-]?(\d+\.\d+|\d+\.|\.\d+|\d+)([eE][+-]?\d+)?$/)
         {
-            local $^W;
             __croak "expected $arg1, got $arg2", $msg unless $arg1 == $arg2;
         }
         else {
@@ -244,7 +243,6 @@ sub all_tests {
         elsif ($arg1 =~ /^[+-]?(\d+\.\d+|\d+\.|\.\d+|\d+)([eE][+-]?\d+)?$/ and
                $arg2 =~ /^[+-]?(\d+\.\d+|\d+\.|\.\d+|\d+)([eE][+-]?\d+)?$/)
         {
-            local $^W;
             __croak "$arg1 and $arg2 should differ", $msg unless $arg1 != $arg2;
         }
         else {
@@ -315,8 +313,7 @@ sub all_tests {
     }
 
     sub _deep_check {
-        my $self = shift;
-        my ($e1, $e2) = @_;
+        my ($self, $e1, $e2) = @_;
 
         if ( ! defined $e1 || ! defined $e2 ) {
             return 1 if !defined $e1 && !defined $e2;
@@ -354,8 +351,7 @@ sub all_tests {
     }
 
     sub _eq_array  {
-        my $self = shift;
-        my($a1, $a2) = @_;
+        my ($self, $a1, $a2) = @_;
         return 1 if $a1 eq $a2;
 
         my $ok = 1;
@@ -374,8 +370,7 @@ sub all_tests {
     }
 
     sub _eq_hash {
-        my $self = shift;
-        my($a1, $a2) = @_;
+        my ($self, $a1, $a2) = @_;
         return 1 if $a1 eq $a2;
 
         my $ok = 1;
@@ -395,8 +390,7 @@ sub all_tests {
     }
 
     sub _format_stack {
-        my $self = shift;
-        my @Stack = @_;
+        my ($self, @Stack) = @_;
 
         my $var = '$FOO';
         my $did_arrow = 0;
@@ -1225,6 +1219,14 @@ The L<Test::Unit::Lite> was tested as a L<Test::Unit> replacement for following
 distributions: L<Test::C2FIT>, L<XAO::Base>, L<Exception::Base>.
 
 =for readme continue
+
+=head1 BUGS
+
+If you find the bug or want to implement new features, please report it at
+L<https://github.com/dex4er/perl-Test-Unit-Lite/issues>
+
+The code repository is available at
+L<http://github.com/dex4er/perl-Test-Unit-Lite>
 
 =head1 AUTHOR
 
