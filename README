@@ -56,6 +56,13 @@ DESCRIPTION
     distribution. Then the Test::Unit::Lite module is copied to the inc
     directory of the source directory for the package distribution.
 
+BUGS
+    If you find the bug or want to implement new features, please report it
+    at https://github.com/dex4er/perl-Test-Unit-Lite/issues
+
+    The code repository is available at
+    http://github.com/dex4er/perl-Test-Unit-Lite
+
 AUTHOR
     Piotr Roszatycki <dexter@cpan.org>
 

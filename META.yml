@@ -4,7 +4,7 @@ author:
   - 'Piotr Roszatycki <dexter@cpan.org>'
 build_requires: {}
 dynamic_config: 1
-generated_by: 'Module::Build version 0.38, CPAN::Meta::Converter version 2.112150'
+generated_by: 'Module::Build version 0.4003, CPAN::Meta::Converter version 2.120630'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -19,7 +19,7 @@ provides:
     version: 0
   Test::Unit::Lite:
     file: lib/Test/Unit/Lite.pm
-    version: 0.1201
+    version: 0.1202
   Test::Unit::Lite::AllTests:
     file: lib/Test/Unit/Lite.pm
     version: 0
@@ -38,7 +38,7 @@ provides:
 requires:
   perl: 5.006
 resources:
-  bugtracker: http://rt.cpan.org/NoAuth/Bugs.html?Dist=Test-Unit-Lite
+  bugtracker: http://github.com/dex4er/perl-Test-Unit-Lite/issues
   license: http://dev.perl.org/licenses/
   repository: http://github.com/dex4er/perl-Test-Unit-Lite
-version: 0.1201
+version: 0.1202

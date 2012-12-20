@@ -4,7 +4,7 @@
       "Piotr Roszatycki <dexter@cpan.org>"
    ],
    "dynamic_config" : 1,
-   "generated_by" : "Module::Build version 0.38, CPAN::Meta::Converter version 2.112150",
+   "generated_by" : "Module::Build version 0.4003, CPAN::Meta::Converter version 2.120630",
    "license" : [
       "perl_5"
    ],
@@ -31,7 +31,7 @@
       },
       "Test::Unit::Lite" : {
          "file" : "lib/Test/Unit/Lite.pm",
-         "version" : "0.1201"
+         "version" : "0.1202"
       },
       "Test::Unit::Lite::AllTests" : {
          "file" : "lib/Test/Unit/Lite.pm",
@@ -57,7 +57,7 @@
    "release_status" : "stable",
    "resources" : {
       "bugtracker" : {
-         "web" : "http://rt.cpan.org/NoAuth/Bugs.html?Dist=Test-Unit-Lite"
+         "web" : "http://github.com/dex4er/perl-Test-Unit-Lite/issues"
       },
       "license" : [
          "http://dev.perl.org/licenses/"
@@ -66,5 +66,5 @@
          "url" : "http://github.com/dex4er/perl-Test-Unit-Lite"
       }
    },
-   "version" : "0.1201"
+   "version" : "0.1202"
 }
