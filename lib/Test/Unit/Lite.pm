@@ -559,6 +559,10 @@ sub all_tests {
         return $_[0]->{units};
     }
 
+    sub suite {
+        return $_[0];
+    }
+
     sub add_test {
         my ($self, $unit) = @_;
 
@@ -754,11 +758,13 @@ sub all_tests {
 
         my $result = Test::Unit::Result->new;
 
-        # untaint $test
-        $test =~ /([A-Za-z0-9:-]*)/;
-        $test = $1;
-        eval "use $test;";
-        die if $@;
+        if ( not ref $test ) {
+            # untaint $test
+            $test =~ /([A-Za-z0-9:-]*)/;
+            $test = $1;
+            eval "use $test;";
+            die if $@;
+        }
 
         if ($test->isa('Test::Unit::TestSuite')) {
             $self->{suite} = $test->suite;
