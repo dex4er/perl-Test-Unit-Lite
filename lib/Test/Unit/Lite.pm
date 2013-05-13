@@ -28,6 +28,9 @@ Using as a replacement for Test::Unit:
       return $self;
   }
 
+  sub before_class {
+      # run once before any of the test methods in the class
+  }
   sub set_up {
       # provide fixture
   }
@@ -43,6 +46,9 @@ Using as a replacement for Test::Unit:
   }
   sub test_bar {
       # test the bar feature
+  }
+  sub after_class {
+     # run once after all test methods in the class
   }
 
 =head1 DESCRIPTION
