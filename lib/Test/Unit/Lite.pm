@@ -28,6 +28,9 @@ Using as a replacement for Test::Unit:
       return $self;
   }
 
+  sub before_class {
+      # run once before any of the test methods in the class
+  }
   sub set_up {
       # provide fixture
   }
@@ -43,6 +46,9 @@ Using as a replacement for Test::Unit:
   }
   sub test_bar {
       # test the bar feature
+  }
+  sub after_class {
+     # run once after all test methods in the class
   }
 
 =head1 DESCRIPTION
@@ -133,9 +139,13 @@ sub all_tests {
         return bless $self => $class;
     }
 
+    sub before_class { }
+
     sub set_up { }
 
     sub tear_down { }
+
+    sub after_class { }
 
     sub list_tests {
         my ($self) = @_;
@@ -498,6 +508,7 @@ sub all_tests {
 
 {
     package Test::Unit::TestSuite;
+    use Carp ();
     our $VERSION = $Test::Unit::Lite::VERSION;
 
     sub empty_new {
@@ -554,6 +565,10 @@ sub all_tests {
         return $_[0]->{units};
     }
 
+    sub suite {
+        return $_[0];
+    }
+
     sub add_test {
         my ($self, $unit) = @_;
 
@@ -586,39 +601,59 @@ sub all_tests {
         die "Undefined result object" unless defined $result;
 
         foreach my $unit (@{ $self->units }) {
-            foreach my $test (@{ $unit->list_tests }) {
-                my $unit_test = (ref $unit ? ref $unit : $unit) . '::' . $test;
-                my $add_what;
-                my $e = '';
+            eval {
+                $unit->before_class;
+            };
+            if ($@) {
+                Carp::confess("$@\n");
+            }
+            $self->_run_tests($unit, $result, $runner);
+            eval {
+                 $unit->after_class;
+            };
+            if ($@) {
+                Carp::confess("$@\n");
+            }
+        }
+        return;
+    }
+
+    sub _run_tests {
+        my ($self, $unit, $result, $runner) = @_;
+
+        foreach my $test (@{ $unit->list_tests }) {
+            my $unit_test = (ref $unit ? ref $unit : $unit) . '::' . $test;
+            my $add_what;
+            my $e = '';
+            eval {
+                $unit->set_up;
+            };
+            if ($@) {
+                $e = "$@";
+                $add_what = 'add_error';
+            }
+            else {
                 eval {
-                    $unit->set_up;
+                    $unit->$test;
                 };
                 if ($@) {
                     $e = "$@";
-                    $add_what = 'add_error';
+                    $add_what = 'add_failure';
                 }
                 else {
-                    eval {
-                        $unit->$test;
-                    };
-                    if ($@) {
-                        $e = "$@";
-                        $add_what = 'add_failure';
-                    }
-                    else {
-                        $add_what = 'add_pass';
-                    };
+                    $add_what = 'add_pass';
                 };
-                eval {
-                    $unit->tear_down;
-                };
-                if ($@) {
-                    $e .= "$@";
-                    $add_what = 'add_error';
-                };
-                $result->$add_what($unit_test, $e, $runner);
-            }
+            };
+            eval {
+                $unit->tear_down;
+            };
+            if ($@) {
+                $e .= "$@";
+                $add_what = 'add_error';
+            };
+            $result->$add_what($unit_test, $e, $runner);
         }
+
         return;
     }
 
@@ -729,11 +764,13 @@ sub all_tests {
 
         my $result = Test::Unit::Result->new;
 
-        # untaint $test
-        $test =~ /([A-Za-z0-9:-]*)/;
-        $test = $1;
-        eval "use $test;";
-        die if $@;
+        if ( not ref $test ) {
+            # untaint $test
+            $test =~ /([A-Za-z0-9:-]*)/;
+            $test = $1;
+            eval "use $test;";
+            die if $@;
+        }
 
         if ($test->isa('Test::Unit::TestSuite')) {
             $self->{suite} = $test->suite;

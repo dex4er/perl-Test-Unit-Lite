@@ -24,6 +24,9 @@ Using as a replacement for Test::Unit:
         return $self;
     }
 
+    sub before_class {
+        # run once before any of the test methods in the class
+    }
     sub set_up {
         # provide fixture
     }
@@ -39,6 +42,9 @@ Using as a replacement for Test::Unit:
     }
     sub test_bar {
         # test the bar feature
+    }
+    sub after_class {
+        # run once after all test methods in the class
     }
 
 # DESCRIPTION
@@ -86,6 +92,16 @@ when the assertion is false.
 - new
 
 The default constructor which just bless an empty anonymous hash reference.
+
+- before\_class
+
+This method is called once and as late as possible, just before first test. It is empty
+method and can be overridden in derived class.
+
+- after\_class
+
+This method is called once after all test methods in the class. It is empty
+method and can be overridden in derived class.
 
 - set\_up
 
@@ -220,7 +236,7 @@ Called after test unit is passed.
 
 Called after running test suite.
 
-- start(TEST\_SUITE)
+- start(TEST\_SUITE | TEST\_SUITE\_OBJECT)
 
 Starts the test suite.
 
